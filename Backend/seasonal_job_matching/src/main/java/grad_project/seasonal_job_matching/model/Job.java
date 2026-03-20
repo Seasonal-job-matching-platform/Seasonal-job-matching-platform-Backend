@@ -3,9 +3,7 @@ package grad_project.seasonal_job_matching.model;
 import java.sql.Date;
 import java.util.List;
 
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -117,8 +115,8 @@ public class Job {
     @Column(columnDefinition = "text[]")
     private List<String> benefits;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true) 
-    @JsonIgnoreProperties("job") 
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("job")
     private List<JobComment> comments;
 
     public Job(int id, String title, String description, JobType type, String location, Date startDate, User jobposter,

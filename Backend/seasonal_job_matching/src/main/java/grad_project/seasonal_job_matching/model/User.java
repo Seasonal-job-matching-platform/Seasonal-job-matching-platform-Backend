@@ -1,12 +1,11 @@
 package grad_project.seasonal_job_matching.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -82,6 +81,12 @@ public class User {
                 // class
             name = "user_favorite_jobs", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "job_id"))
     private Set<Job> favoriteJobs = new HashSet<>(); // faster operations on hashlist
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserDeviceToken> deviceTokens = new ArrayList<>();
+
+    @Column
+    private Boolean wantsEmails = false;
 
     // Default constructor required for JPA
     public User(String name, String country, String number, String email, String password) {
