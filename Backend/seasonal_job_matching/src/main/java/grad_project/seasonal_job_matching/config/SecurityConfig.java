@@ -78,7 +78,7 @@ public class SecurityConfig {
 
         // Cloudflare Pages dynamic subdomains
         config.setAllowedOriginPatterns(List.of(
-            "https://*.seasonal-job-matching-platform.pages.dev"
+            "https://*.seasonal-job-matching-platform-frontend.pages.dev"
         ));
 
         config.setAllowedMethods(List.of(
