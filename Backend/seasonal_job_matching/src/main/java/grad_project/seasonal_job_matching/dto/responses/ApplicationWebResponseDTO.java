@@ -10,13 +10,19 @@ public class ApplicationWebResponseDTO {
 
     private long id;
 
-    private UserResponseDTO user;  
+    private UserResponseDTO user;
 
-    private ApplicationStatus applicationStatus; 
+    private ApplicationStatus applicationStatus;
 
-    private long jobId;//so the frontend and user dont struggle with parsing
+    private long jobId;// so the frontend and user dont struggle with parsing
 
     private Date createdAt;
 
     private String describeYourself;
+
+    private String interviewDate;
+
+    private String interviewTime;
+
+    private String interviewLocation;
 }

@@ -41,14 +41,15 @@ public class ApplicationController {
             @Valid @RequestBody ApplicationCreateDTO dto,
             HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
-        if (currentUserId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (currentUserId != userId) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (currentUserId != userId)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
             ApplicationResponseDTO application = applicationService.createApplication(dto, userId, jobId);
             return ResponseEntity.ok().body(Map.of(
-                "message", "Application submitted successfully",
-                "application", application
-            ));
+                    "message", "Application submitted successfully",
+                    "application", application));
         } catch (RuntimeException e) {
             // Handle errors (e.g., User or Job not found)
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -61,8 +62,10 @@ public class ApplicationController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getApplicationsForUser(@PathVariable long userId, HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
-        if (currentUserId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (currentUserId != userId) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (currentUserId != userId)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
             List<ApplicationResponseDTO> applications = applicationService.getApplicationsForUser(userId);
             if (applications.isEmpty()) {
@@ -78,8 +81,10 @@ public class ApplicationController {
     @GetMapping("/userjobs/{userId}")
     public ResponseEntity<?> getJobIdsFromApplications(@PathVariable long userId, HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
-        if (currentUserId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (currentUserId != userId) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (currentUserId != userId)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
             JobIdsFromApplicationsResponseDTO applications = applicationService.getJobIdsFromApplications(userId);
@@ -98,22 +103,24 @@ public class ApplicationController {
             @PathVariable long applicationId,
             @PathVariable long employerId,
             @Valid @RequestBody ApplicationStatusUpdateDTO dto, HttpServletRequest request) {
-        
+
         Long currentUserId = currentUserService.getCurrentUserId(request);
-        if (currentUserId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (currentUserId != employerId) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (currentUserId != employerId)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
-            ApplicationResponseDTO updatedApplication = applicationService.updateApplicationStatus(applicationId, employerId, dto);
+            ApplicationResponseDTO updatedApplication = applicationService.updateApplicationStatus(applicationId,
+                    employerId, dto);
             return ResponseEntity.ok().body(Map.of(
-                "message", "Application status updated successfully",
-                "application", updatedApplication
-            ));
+                    "message", "Application status updated successfully",
+                    "application", updatedApplication));
         } catch (RuntimeException e) {
             // Catches both "Not Found" and "Authorization Failed" errors
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-    
+
     /**
      * Gets all applications submitted for a specific job (Employer view).
      * Only the job owner (poster) can see applications for their job.
@@ -121,9 +128,11 @@ public class ApplicationController {
     @GetMapping("/job/{jobId}")
     public ResponseEntity<?> getApplicationsForJob(@PathVariable long jobId, HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
-        if (currentUserId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (currentUserId == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         long jobOwnerId = applicationService.getJobOwnerId(jobId);
-        if (currentUserId != jobOwnerId) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId != jobOwnerId)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
             List<ApplicationWebResponseDTO> applications = applicationService.getApplicationsForJob(jobId);
             if (applications.isEmpty()) {
@@ -142,9 +151,11 @@ public class ApplicationController {
     @DeleteMapping("/{applicationId}")
     public ResponseEntity<?> deleteApplication(@PathVariable long applicationId, HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
-        if (currentUserId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (currentUserId == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         long applicantId = applicationService.getApplicantId(applicationId);
-        if (currentUserId != applicantId) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId != applicantId)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
             applicationService.deleteApplication(applicationId);
             return ResponseEntity.ok(Map.of("message", "Application deleted successfully."));

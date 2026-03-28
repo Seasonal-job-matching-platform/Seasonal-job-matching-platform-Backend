@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDeviceToken {
 
+    @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

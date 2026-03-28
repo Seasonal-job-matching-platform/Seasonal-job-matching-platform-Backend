@@ -8,22 +8,25 @@ import lombok.Data;
 
 @Data
 public class UserResponseDTO {
-    
+
     private long id;
 
     private String name;
 
     private String country;
 
-    @Pattern(regexp = "^[0-9]{11}$") 
+    @Pattern(regexp = "^[0-9]{11}$")
     private String number;
 
     @Email
     private String email;
 
-    //private ResumeResponseDTO resume; //maybe just the id instead of everything
-    
-    //private List<JobResponseDTO> ownjobList;//probably add JSONignoreproperties here because you dont need all jobs and applications when loading user
-    //will need to add ownedapplications here
+    private Boolean wantsEmails;
+
+    // private ResumeResponseDTO resume; //maybe just the id instead of everything
+
+    // private List<JobResponseDTO> ownjobList;//probably add JSONignoreproperties
+    // here because you dont need all jobs and applications when loading user
+    // will need to add ownedapplications here
 
 }

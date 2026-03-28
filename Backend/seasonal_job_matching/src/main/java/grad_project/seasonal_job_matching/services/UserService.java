@@ -290,8 +290,8 @@ public class UserService {
         // has new fields that are changed
         User updatedUser = userMapper.maptoEditUser(dto);
 
-        if (dto.getWantsEmails() != existingUser.getWantsEmails()) {
-            existingUser.setWantsEmails(updatedUser.getWantsEmails());
+        if (dto.getWantsEmails() != null) {
+            existingUser.setWantsEmails(dto.getWantsEmails());
         }
 
         // if field thats updated is name and new name isn't empty

@@ -23,7 +23,6 @@ import grad_project.seasonal_job_matching.dto.requests.JobCreateDTO;
 import grad_project.seasonal_job_matching.dto.requests.JobEditDTO;
 import grad_project.seasonal_job_matching.dto.responses.JobCommentResponseDTO;
 import grad_project.seasonal_job_matching.dto.responses.JobResponseDTO;
-import grad_project.seasonal_job_matching.model.JobComment;
 import grad_project.seasonal_job_matching.model.enums.JobType;
 import grad_project.seasonal_job_matching.model.enums.Salary;
 import grad_project.seasonal_job_matching.model.enums.WorkArrangement;
