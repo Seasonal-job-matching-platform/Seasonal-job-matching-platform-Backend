@@ -58,7 +58,6 @@ public class UserService {
 
     private final JWTService jwtService;
 
-
     private final RestTemplate restTemplate;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class); // good practice for debugging,
@@ -97,19 +96,18 @@ public class UserService {
             logger.info("Calling external API: {}", url);
 
             // ResponseEntity<RecommendedJobsResponse> response = restTemplate.getForEntity(
-            //         url,
-            //         RecommendedJobsResponse.class);
+            // url,
+            // RecommendedJobsResponse.class);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("ngrok-skip-browser-warning", "true");
             HttpEntity<String> entity = new HttpEntity<>(headers);
-                    
+
             ResponseEntity<RecommendedJobsResponse> response = restTemplate.exchange(
-                url, 
-                HttpMethod.GET,
-                entity,
-                RecommendedJobsResponse.class
-            );
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    RecommendedJobsResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 logger.info("Successfully received recommendations for user {}", userId);
@@ -201,24 +199,22 @@ public class UserService {
         if (passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             // 3. Generate JWT token with user data (email, userId, phoneNumber)
             String token = jwtService.generateToken(
-                user.getId(), 
-                user.getEmail(), 
-                user.getNumber(),
-                user.getName()
-            );
+                    user.getId(),
+                    user.getEmail(),
+                    user.getNumber(),
+                    user.getName());
             // 3. Passwords match, return the user's data (without the password)
             UserResponseDTO userResponseDTO = userMapper.maptoreturnUser(user);
 
-            Map <String, Object> response = new HashMap<>();
+            Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", userResponseDTO);
             response.put("message", "Login successful");
-            
-            return response;
-    }else{
-        throw new RuntimeException("Authentication failed");
-    }
 
+            return response;
+        } else {
+            throw new RuntimeException("Authentication failed");
+        }
 
     }
 
@@ -271,17 +267,21 @@ public class UserService {
                 .toList();
     }
 
-    public UserResponseDTO editUser(UserEditDTO dto, long id){
-        User existingUser = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User not found with ID: " + id));
+    public UserResponseDTO editUser(UserEditDTO dto, long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
         if (existingUser.getFieldsOfInterest() == null) {
             existingUser.setFieldsOfInterest(new ArrayList<>());
         }
 
-        //checks to see if we are editing email
-        //in case we're editing a different field than email, check new email isn't empty, checks new email isnt same as OLD email
-        if (dto.getEmail()!=null && !dto.getEmail().trim().isEmpty() && !dto.getEmail().equals(existingUser.getEmail())) {
-            //after confirming that we are editing email, checks new email isnt as another email in db
+        // checks to see if we are editing email
+        // in case we're editing a different field than email, check new email isn't
+        // empty, checks new email isnt same as OLD email
+        if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()
+                && !dto.getEmail().equals(existingUser.getEmail())) {
+            // after confirming that we are editing email, checks new email isnt as another
+            // email in db
             if (userRepository.existsByEmail(dto.getEmail())) {
                 throw new RuntimeException("Cannot update user, email already exists: " + dto.getEmail());
             }
@@ -289,6 +289,10 @@ public class UserService {
 
         // has new fields that are changed
         User updatedUser = userMapper.maptoEditUser(dto);
+
+        if (dto.getWantsEmails() != null) {
+            existingUser.setWantsEmails(dto.getWantsEmails());
+        }
 
         // if field thats updated is name and new name isn't empty
         if (dto.getName() != null && !dto.getName().trim().isEmpty()) {

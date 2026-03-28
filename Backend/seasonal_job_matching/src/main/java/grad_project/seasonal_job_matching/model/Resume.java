@@ -3,11 +3,8 @@ package grad_project.seasonal_job_matching.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
-
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

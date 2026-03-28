@@ -13,6 +13,7 @@ import grad_project.seasonal_job_matching.model.enums.ApplicationStatus;
 import grad_project.seasonal_job_matching.repository.ApplicationRepository;
 import grad_project.seasonal_job_matching.repository.JobRepository;
 import grad_project.seasonal_job_matching.repository.UserRepository;
+import grad_project.seasonal_job_matching.services.Notifications.NotificationFacade;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,16 +29,19 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
     private final ApplicationMapper applicationMapper;
+    private final NotificationFacade notificationFacade;
 
     // Constructor to inject all dependencies
     public ApplicationService(ApplicationRepository applicationRepository,
-                              UserRepository userRepository,
-                              JobRepository jobRepository,
-                              ApplicationMapper applicationMapper) {
+            UserRepository userRepository,
+            JobRepository jobRepository,
+            ApplicationMapper applicationMapper,
+            NotificationFacade notificationFacade) {
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
         this.applicationMapper = applicationMapper;
+        this.notificationFacade = notificationFacade;
     }
 
     /**
@@ -46,11 +50,11 @@ public class ApplicationService {
      */
     @Transactional
     public ApplicationResponseDTO createApplication(ApplicationCreateDTO dto, long userId, long jobId) {
-        
+
         // 1. Find the parent User and Job entities
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        
+
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found with ID: " + jobId));
 
@@ -64,7 +68,8 @@ public class ApplicationService {
         application.setCreatedAt(new Date(System.currentTimeMillis())); // Set current date
 
         // 4. Save the new application
-        // Because Application is the "owning" side of the relationship (with @JoinColumn),
+        // Because Application is the "owning" side of the relationship (with
+        // @JoinColumn),
         // saving it is what creates the foreign key links in the database.
         Application savedApplication = applicationRepository.save(application);
 
@@ -79,7 +84,7 @@ public class ApplicationService {
     public List<ApplicationResponseDTO> getApplicationsForUser(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        
+
         // Use the 'ownedApplications' list from the User entity
         List<Application> applications = applicationRepository.findByUserId(userId);
 
@@ -88,18 +93,19 @@ public class ApplicationService {
                 .map(applicationMapper::maptoreturnApplication)
                 .collect(Collectors.toList());
     }
-    
+
     @Transactional(readOnly = true)
     public JobIdsFromApplicationsResponseDTO getJobIdsFromApplications(long userId) {
-        //User user = userRepository.findById(userId)
-        //    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        
-        //    List<Application> apps = user.getOwnedApplications();
+        // User user = userRepository.findById(userId)
+        // .orElseThrow(() -> new RuntimeException("User not found with ID: " +
+        // userId));
+
+        // List<Application> apps = user.getOwnedApplications();
         List<Application> applications = applicationRepository.findByUserId(userId);
 
         List<Long> jobIds = applications.stream()
-        .map(application -> application.getJob().getId())
-        .collect(Collectors.toList());
+                .map(application -> application.getJob().getId())
+                .collect(Collectors.toList());
 
         JobIdsFromApplicationsResponseDTO dto = new JobIdsFromApplicationsResponseDTO();
         dto.setJobIds(jobIds);
@@ -114,7 +120,8 @@ public class ApplicationService {
 
     /**
      * Returns the user id of the applicant who submitted the application.
-     * Used for authorization (only applicant can withdraw/delete their application).
+     * Used for authorization (only applicant can withdraw/delete their
+     * application).
      */
     @Transactional(readOnly = true)
     public long getApplicantId(long applicationId) {
@@ -153,7 +160,7 @@ public class ApplicationService {
 
     /**
      * Deletes an application by its ID.
-     * This will automatically remove it from the User's and Job's lists 
+     * This will automatically remove it from the User's and Job's lists
      * on the next database read because the record is gone.
      */
     @Transactional
@@ -161,15 +168,17 @@ public class ApplicationService {
         if (!applicationRepository.existsById(applicationId)) {
             throw new RuntimeException("Application not found with ID: " + applicationId);
         }
-        
+
         // Deleting the application record is enough.
-        // The @OneToMany lists in User and Job are managed by Hibernate 
+        // The @OneToMany lists in User and Job are managed by Hibernate
         // and will no longer include this application after it's deleted.
         applicationRepository.deleteById(applicationId);
     }
+
     @Transactional
-    public ApplicationResponseDTO updateApplicationStatus(long applicationId, long requestingUserId, ApplicationStatusUpdateDTO dto) {
-        
+    public ApplicationResponseDTO updateApplicationStatus(long applicationId, long requestingUserId,
+            ApplicationStatusUpdateDTO dto) {
+
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found with ID: " + applicationId));
 
@@ -177,18 +186,29 @@ public class ApplicationService {
 
         long jobPosterId = job.getJobPoster().getId();
 
-        // Compare the ID of the person making the request (requestingUserId) 
+        // Compare the ID of the person making the request (requestingUserId)
         // with the ID of the person who owns the job (jobPosterId).
         if (requestingUserId != jobPosterId) {
-            throw new RuntimeException("Authorization Failed: You are not the owner of this job and cannot update its applications.");
+            throw new RuntimeException(
+                    "Authorization Failed: You are not the owner of this job and cannot update its applications.");
         }
 
         // 5. Authorization Passed: Update the status
         application.setApplicationStatus(dto.getStatus());
-        
+
+        if (dto.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED) {
+            application.setInterviewDate(dto.getInterviewDate());
+            application.setInterviewTime(dto.getInterviewTime());
+            application.setInterviewLocation(dto.getInterviewLocation());
+        }
+
         // 6. Save the updated application
         Application savedApplication = applicationRepository.save(application);
 
+        User applicant = application.getUser();
+        String employerName = job.getJobPoster().getName();
+
+        notificationFacade.dispatchApplicationUpdate(applicant, employerName, applicationId, dto);
         // 7. Map and return the updated DTO
         return applicationMapper.maptoreturnApplication(savedApplication);
     }

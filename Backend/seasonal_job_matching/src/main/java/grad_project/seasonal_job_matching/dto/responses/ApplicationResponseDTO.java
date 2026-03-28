@@ -10,15 +10,21 @@ public class ApplicationResponseDTO {
 
     private long id;
 
-    private long userId;  
+    private long userId;
 
-    private ApplicationStatus applicationStatus; 
+    private ApplicationStatus applicationStatus;
 
-    //@JsonIgnoreProperties({"listofJobApplications", "jobPoster"})  // Add this annotation
-    private JobResponseDTO job;//so the frontend and user dont struggle with parsing
+    // @JsonIgnoreProperties({"listofJobApplications", "jobPoster"}) // Add this
+    // annotation
+    private JobResponseDTO job;// so the frontend and user dont struggle with parsing
 
     private Date createdAt;
 
     private String describeYourself;
 
+    private String interviewDate;
+
+    private String interviewTime;
+
+    private String interviewLocation;
 }

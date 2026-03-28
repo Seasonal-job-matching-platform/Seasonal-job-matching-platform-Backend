@@ -19,36 +19,39 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data //getters,setters, required args constructor
+@Data // getters,setters, required args constructor
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "applications")
 public class Application {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userID", nullable=false) //created the foreign key column
-    @JsonIgnoreProperties("ownedApplications")  // Add this line
-    private User user; //user that applied, has ID 
+    @JoinColumn(name = "userID", nullable = false) // created the foreign key column
+    @JsonIgnoreProperties("ownedApplications") // Add this line
+    private User user; // user that applied, has ID
 
-    @Enumerated(EnumType.STRING) 
-    private ApplicationStatus applicationStatus; 
-    
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus applicationStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("listofJobApplications") 
+    @JsonIgnoreProperties("listofJobApplications")
     @JoinColumn(name = "jobID", nullable = false)
     private Job job;
 
     private Date createdAt;
 
-    // //is this necessary or can be removed?
-    // private Date updatedAt;
-
     private String describeYourself;
-    
+
+    @Column
+    private String interviewDate;
+    @Column
+    private String interviewTime;
+    @Column
+    private String interviewLocation;
 }
