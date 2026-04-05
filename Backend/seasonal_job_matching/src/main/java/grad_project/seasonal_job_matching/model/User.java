@@ -40,7 +40,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column // turn to UUID, review it first
-    private long id;
+    private Long id;
 
     @Column(nullable = false, length = 100)
     private String name;
