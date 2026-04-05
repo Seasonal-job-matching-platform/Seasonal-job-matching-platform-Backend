@@ -3,7 +3,7 @@ package grad_project.seasonal_job_matching.services.Notifications;
 import grad_project.seasonal_job_matching.dto.requests.ApplicationStatusUpdateDTO;
 import grad_project.seasonal_job_matching.model.User;
 import grad_project.seasonal_job_matching.model.UserDeviceToken;
-import grad_project.seasonal_job_matching.repository.UserDeviceTokenRepository;
+import grad_project.seasonal_job_matching.repository.DeviceTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +15,12 @@ public class NotificationFacade {
     private final NotificationService notificationService; // Saves to the 'notifications' table
     private final FCMService fcmService; // Talks to Google Firebase
     private final EmailService emailService; // Sends Async emails
-    private final UserDeviceTokenRepository tokenRepo; // Queries your new Entity
+    private final DeviceTokenRepository tokenRepo; // Queries your new Entity
 
     public NotificationFacade(NotificationService notificationService,
             FCMService fcmService,
             EmailService emailService,
-            UserDeviceTokenRepository tokenRepo) {
+            DeviceTokenRepository tokenRepo) {
         this.notificationService = notificationService;
         this.fcmService = fcmService;
         this.emailService = emailService;
