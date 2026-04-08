@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
+import 'package:job_seeker/core/auth/auth_dialog_manager.dart';
 import 'package:job_seeker/screens/Profile/profile_screen.dart';
 
 import 'applications_screen.dart';
@@ -20,6 +21,7 @@ class LayoutScreen extends ConsumerStatefulWidget {
 class _LayoutScreenState extends ConsumerState<LayoutScreen> {
   int currentIndex = 0;
   bool _hasHandledInitialAuth = false;
+  bool _isSessionExpiredDialogShown = false;
 
   final List<String> titles = const <String>[
     'Home',
@@ -68,16 +70,21 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
   }
 
   void _showSessionExpiredDialog() {
+    if (_isSessionExpiredDialogShown) return;
+    _isSessionExpiredDialogShown = true;
+
+    print('[DEBUG] LayoutScreen: Showing session expired dialog');
+
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Session Expired'),
         content: const Text('Your session has expired. Please log in again.'),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
+              Navigator.of(dialogContext).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
                 (route) => false,
               );
@@ -86,7 +93,11 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) {
+      _isSessionExpiredDialogShown = false;
+      AuthDialogManager().resetSessionExpired();
+      print('[DEBUG] LayoutScreen: Dialog closed, dialog manager reset');
+    });
   }
 
   @override

@@ -1,0 +1,41 @@
+# PROJECT CONTEXT: Seasonal Job Matching Platform
+# ARCHITECTURE: Flutter | Spring Boot | Riverpod | Clean Architecture
+# RECENT UPDATES: Implemented JWT Expiry logic and Job Comments.
+
+-------------------------------------------------------------------------------
+BUG FIX 1: AUTHENTICATION FLOW & DUPLICATE POPUPS
+-------------------------------------------------------------------------------
+ISSUE: 
+1. Users attempting to 'Sign Up' after a 'Logout' are hit with a "Session Expired" popup.
+2. The popup appears multiple times (3x), indicating redundant trigger loops.
+3. Users are forced to log in again even after a successful logout/signup attempt.
+
+REQUIREMENTS:
+1. Logic Guard: Ensure the "Session Expired" interceptor/logic is DISABLED or IGNORED when the user is on the Auth/Sign-up screens. It should only trigger for protected resource calls.
+2. Singleton/Debounce Popup: Fix the "triple popup" issue. Implement a check to see if the dialog is already showing before calling `showDialog`, or ensure the auth provider only emits the 'expired' state once.
+3. State Cleanup: On Logout, explicitly clear the 'Token' from both Secure Storage AND the in-memory Riverpod state immediately.
+
+-------------------------------------------------------------------------------
+BUG FIX 2: DATA LEAKAGE & STATE REFRESH (LAGGING INFO)
+-------------------------------------------------------------------------------
+ISSUE: 
+When switching accounts, data from the previous user (e.g., Favorite Jobs) is visible for ~1 second before the new user's data loads.
+
+REQUIREMENTS:
+1. Provider Reset: Implement a global state reset on Logout. In Riverpod, ensure that all data-related providers (Home, Favorites, Profile) are invalidated using `ref.invalidate()` or by utilizing a `rootProvider` that resets the entire container.
+2. Splash/Loading State: Ensure that upon a new login, the app shows a clean loading state or splash screen while the new user's specific data is being fetched, rather than defaulting to the last cached state.
+3. Cache Invalidation: If using a local database (Sqflite) or a Repository cache for Favorites, ensure these are wiped clean during the logout transition.
+
+-------------------------------------------------------------------------------
+TASK 3: TESTING & VALIDATION
+-------------------------------------------------------------------------------
+PROTOCOL:
+1. Multi-Account Test: 
+   - Login User A -> View Favorites.
+   - Logout -> Login User B. 
+   - Verify User A's data is NEVER visible during the transition.
+2. Signup Loop Test: 
+   - Login -> Logout -> Navigate to Signup.
+   - Verify zero popups appear and the signup process is "clean."
+3. Unit Test: 
+   - Write a test for the `AuthNotifier` to ensure `logout()` successfully resets all dependent providers to their `AsyncLoading` or `Initial` states.

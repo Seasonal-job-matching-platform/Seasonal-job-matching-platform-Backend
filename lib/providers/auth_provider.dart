@@ -1,13 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/core/auth/auth_storage.dart';
+import 'package:job_seeker/core/auth/auth_dialog_manager.dart';
 import 'package:job_seeker/providers/home_screen_providers/favorites_provider.dart';
+import 'package:job_seeker/providers/home_screen_providers/favorites_controller.dart';
+import 'package:job_seeker/providers/home_screen_providers/recommended_jobs_provider.dart';
 import 'package:job_seeker/providers/applications_screen_providers/applications_provider.dart';
 import 'package:job_seeker/providers/jobs_screen_providers/job_apply_provider.dart';
 import 'package:job_seeker/providers/jobs_screen_providers/job_notifier.dart';
+import 'package:job_seeker/providers/jobs_screen_providers/paginated_jobs_provider.dart';
+import 'package:job_seeker/providers/jobs_screen_providers/job_comments_provider.dart';
+import 'package:job_seeker/providers/jobs_screen_providers/jobs_filter_provider.dart';
 import 'package:job_seeker/models/auth_models/login_request_model.dart';
 import 'package:job_seeker/models/auth_models/signup_request_model.dart';
 import 'package:job_seeker/services/auth_service.dart';
 import 'package:job_seeker/providers/profile_screen_providers/personal_information_notifier.dart';
+import 'package:job_seeker/providers/profile_screen_providers/resume_provider.dart';
 
 enum AuthStatus { initial, authenticated, unauthenticated }
 
@@ -57,7 +64,7 @@ class AuthNotifier extends Notifier<AuthState> {
   @override
   AuthState build() {
     _checkStoredSession();
-    return const AuthState();
+    return const AuthState(status: AuthStatus.initial);
   }
 
   Future<void> _checkStoredSession() async {
@@ -86,6 +93,10 @@ class AuthNotifier extends Notifier<AuthState> {
 
       await _storage.saveToken(token);
       await _storage.saveUserId(userId.toString());
+
+      // Reset dialog manager on successful login
+      AuthDialogManager().resetSessionExpired();
+      print('[DEBUG] Login successful, dialog manager reset');
 
       state = AuthState(
         status: AuthStatus.authenticated,
@@ -117,7 +128,6 @@ class AuthNotifier extends Notifier<AuthState> {
         number: number,
         email: email,
         password: password,
-        fieldsOfInterest: null,
       );
 
       final response = await _authService.signup(request);
@@ -127,6 +137,10 @@ class AuthNotifier extends Notifier<AuthState> {
 
       await _storage.saveToken(token);
       await _storage.saveUserId(userId.toString());
+
+      // Reset dialog manager on successful signup
+      AuthDialogManager().resetSessionExpired();
+      print('[DEBUG] Signup successful, dialog manager reset');
 
       state = AuthState(
         status: AuthStatus.authenticated,
@@ -143,18 +157,36 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> logout({bool sessionExpired = false}) async {
+    print('[DEBUG] === LOGOUT STARTED ===');
+
     await _storage.clearToken();
     await _storage.clearUserId();
+    print('[DEBUG] Storage cleared');
 
     state = AuthState(
       status: AuthStatus.unauthenticated,
       sessionExpired: sessionExpired,
     );
 
+    // Invalidate all data providers to prevent data leakage
     ref.invalidate(personalInformationProvider);
-    ref.read(appliedJobsLocalProvider.notifier).state = <String>{};
+    ref.invalidate(appliedJobsLocalProvider);
     ref.invalidate(favoriteJobsProvider);
     ref.invalidate(applicationsProvider);
     ref.invalidate(jobsNotifierProvider);
+    ref.invalidate(paginatedJobsProvider);
+    ref.invalidate(recommendedJobsProvider);
+    ref.invalidate(favoritesControllerProvider);
+    ref.invalidate(applyControllerProvider);
+    ref.invalidate(jobCommentsNotifierProvider);
+    ref.invalidate(jobsFilterProvider);
+    ref.invalidate(resumeProvider);
+    print('[DEBUG] All providers invalidated');
+
+    // Clear local applied jobs set
+    ref.read(appliedJobsLocalProvider.notifier).state = {};
+    print('[DEBUG] appliedJobsLocalProvider cleared');
+
+    print('[DEBUG] === LOGOUT COMPLETE ===');
   }
 }

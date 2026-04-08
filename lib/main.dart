@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:job_seeker/screens/auth/login_screen.dart';
 import 'package:job_seeker/theme/app_theme.dart';
+import 'package:job_seeker/core/navigation_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,13 +13,9 @@ void main() {
     SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white.withOpacity(
-        0.002,
-      ), // Nearly transparent but visible
+      systemNavigationBarColor: Colors.white.withOpacity(0.002),
       systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.dark,
-      systemNavigationBarContrastEnforced:
-          true, // Enable contrast for button visibility
       systemStatusBarContrastEnforced: false,
     ),
   );
@@ -32,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: const LoginScreen(),
