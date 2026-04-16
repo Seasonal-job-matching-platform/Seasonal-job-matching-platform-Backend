@@ -42,23 +42,34 @@ public class StripeWebhookController {
         // ROUTING: Check if the event is a successful checkout
         if ("checkout.session.completed".equals(event.getType())) {
             
-            // STANDARD EXTRACTION: Completely removes the checked exception that was crashing Maven!
-            Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
+            Session session = null;
             
-            // If the session is mysteriously null, tell Stripe so we can see it in the dashboard
+            // Force Stripe to deserialize the object despite the version mismatch, 
+            // and we use a generic Exception catch to stop Maven from crashing your build.
+            try {
+                if (event.getDataObjectDeserializer().getObject().isPresent()) {
+                    session = (Session) event.getDataObjectDeserializer().getObject().get();
+                } else {
+                    session = (Session) event.getDataObjectDeserializer().deserializeUnsafe();
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Fulfillment Crash: Deserialization failed - " + e.getMessage());
+            }
+            
+            // 2. The Trap Detector (just in case)
             if (session == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Fulfillment Crash: Session object is null!");
+                        .body("Fulfillment Crash: Session object is STILL null!");
             }
             
             if ("paid".equals(session.getPaymentStatus())) {
                 try {
                     paymentService.fulfillOrder(session.getId());
                 } catch (Exception e) {
-                    // THE TRAP DETECTOR: Catch the database crash and send it to Stripe Dashboard
                     e.printStackTrace();
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                         .body("Fulfillment Crash: " + e.getMessage());
+                                         .body("Fulfillment Crash: Database Error - " + e.getMessage());
                 }
             }
         }
