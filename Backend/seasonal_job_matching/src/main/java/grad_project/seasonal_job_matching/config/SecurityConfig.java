@@ -19,7 +19,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import grad_project.seasonal_job_matching.security.JwtAuthenticationFilter;
 import grad_project.seasonal_job_matching.security.CustomUserDetailsService;
 
-
 import java.util.List;
 
 @Configuration
@@ -29,8 +28,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, 
-                         CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+            CustomUserDetailsService userDetailsService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -54,17 +53,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/login", "/api/users").permitAll() //login or signup done without authentication
-                .requestMatchers("/api/**").authenticated() //any other call requires authentication
-                .anyRequest().permitAll()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(basic -> basic.disable())
-            .formLogin(form -> form.disable())
-            .logout(logout -> logout.disable());
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/users/login", "/api/users").permitAll() // login or signup done without
+                                                                                       // authentication
+                        .requestMatchers("/api/webhooks/**").permitAll()
+                        .requestMatchers("/api/**").authenticated() // any other call requires authentication
+                        .anyRequest().permitAll())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
@@ -78,19 +78,16 @@ public class SecurityConfig {
 
         // Cloudflare Pages dynamic subdomains
         config.setAllowedOriginPatterns(List.of(
-            "https://*.seasonal-job-matching-platform-frontend.pages.dev"
-        ));
+                "https://*.seasonal-job-matching-platform-frontend.pages.dev"));
 
         config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
-        ));
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source =
-            new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", config);
         return source;

@@ -88,6 +88,9 @@ public class User {
     @Column
     private Boolean wantsEmails = false;
 
+    @Column
+    private Integer JobPostingCredits;
+
     // Default constructor required for JPA
     public User(String name, String country, String number, String email, String password) {
 
