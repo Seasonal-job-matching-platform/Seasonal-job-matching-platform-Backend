@@ -45,17 +45,38 @@ public class StripeWebhookController {
         }
 
         // ROUTING: Check if the event is a successful checkout
+        // if ("checkout.session.completed".equals(event.getType())) {
+
+        //     // Extract the session object from the webhook event
+        //     Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
+
+        //     if (session != null && "paid".equals(session.getPaymentStatus())) {
+        //         // FULFILLMENT: Safely update the database!
+        //         String sessionId = session.getId();
+        //         paymentService.fulfillOrder(sessionId);
+        //     }
+        // }
         if ("checkout.session.completed".equals(event.getType())) {
-
-            // Extract the session object from the webhook event
-            Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
-
-            if (session != null && "paid".equals(session.getPaymentStatus())) {
-                // FULFILLMENT: Safely update the database!
-                String sessionId = session.getId();
-                paymentService.fulfillOrder(sessionId);
+            
+            // 1. BULLETPROOF EXTRACTION: Fixes the silent 'null' SDK version bug
+            Session session;
+            if (event.getDataObjectDeserializer().getObject().isPresent()) {
+                session = (Session) event.getDataObjectDeserializer().getObject().get();
+            } else {
+                session = (Session) event.getDataObjectDeserializer().deserializeUnsafe();
             }
-        }
+            
+            if (session != null && "paid".equals(session.getPaymentStatus())) {
+                String sessionId = session.getId();
+                
+                try {
+                    paymentService.fulfillOrder(sessionId);
+                } catch (Exception e) {
+                    // 2. THE TRAP DETECTOR: If the DB crashes, tell Stripe so we can see the error!
+                    e.printStackTrace();
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                         .body("Fulfillment Crash: " + e.getMessage());
+                }
 
         // Always return a 200 OK to Stripe quickly, so they know you received it
         return ResponseEntity.ok("Webhook processed");
