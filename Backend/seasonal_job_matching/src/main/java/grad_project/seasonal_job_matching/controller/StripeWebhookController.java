@@ -78,9 +78,9 @@ public class StripeWebhookController {
                                          .body("Fulfillment Crash: " + e.getMessage());
                 }
 
-                // Always return a 200 OK to Stripe quickly, so they know you received it
-                return ResponseEntity.ok("Webhook processed");
             }
         }
+        // Always return a 200 OK to Stripe quickly, so they know you received it
+        return ResponseEntity.ok("Webhook processed");
     }
 }
