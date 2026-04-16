@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import grad_project.seasonal_job_matching.model.Notification;
+
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
