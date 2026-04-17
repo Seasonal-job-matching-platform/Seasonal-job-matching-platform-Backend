@@ -134,12 +134,21 @@ public class JobService {
         User user = userRepository.findById(dto.getJobposterId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (user.getJobPostingCredits() == null || user.getJobPostingCredits() == 0) {
+            throw new RuntimeException("Job posting credits are depleted. Purchase more credits to post a job.");
+        }
+
+        user.setJobPostingCredits(user.getJobPostingCredits() - 1);
+
         // Fetch the User Id using user repo?
         job.setJobPoster(user);
         List<Job> ownedjobs = user.getOwnedJobs();
         ownedjobs.add(job);
         user.setOwnedJobs(ownedjobs);
         job.setCreatedAt(Date.valueOf(java.time.LocalDate.now()));
+
+        userRepository.save(user);
+
         return jobMapper.maptoreturnJob(jobRepository.save(job));
 
     }

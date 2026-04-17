@@ -23,6 +23,8 @@ public class UserResponseDTO {
 
     private Boolean wantsEmails;
 
+    private Integer jobPostingCredits;
+
     // private ResumeResponseDTO resume; //maybe just the id instead of everything
 
     // private List<JobResponseDTO> ownjobList;//probably add JSONignoreproperties

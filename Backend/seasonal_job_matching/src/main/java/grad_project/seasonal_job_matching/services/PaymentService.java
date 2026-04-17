@@ -37,7 +37,7 @@ public class PaymentService {
 
                 // 1. Ask Stripe to create the checkout page
                 SessionCreateParams params = SessionCreateParams.builder()
-                                .setSuccessUrl("http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}")
+                                .setSuccessUrl("https://f0ec0fc8.seasonal-job-matching-platform-frontend.pages.dev/dashboard")
                                 .setCancelUrl("http://localhost:3000/payment-cancelled")
                                 .setMode(SessionCreateParams.Mode.PAYMENT)
                                 .putMetadata("userId", userId.toString())
