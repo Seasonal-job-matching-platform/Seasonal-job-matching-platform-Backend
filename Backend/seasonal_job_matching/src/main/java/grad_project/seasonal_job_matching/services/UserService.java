@@ -95,18 +95,8 @@ public class UserService {
 
             logger.info("Calling external API: {}", url);
 
-            // ResponseEntity<RecommendedJobsResponse> response = restTemplate.getForEntity(
-            // url,
-            // RecommendedJobsResponse.class);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("ngrok-skip-browser-warning", "true");
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<RecommendedJobsResponse> response = restTemplate.exchange(
+            ResponseEntity<RecommendedJobsResponse> response = restTemplate.getForEntity(
                     url,
-                    HttpMethod.GET,
-                    entity,
                     RecommendedJobsResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -118,7 +108,7 @@ public class UserService {
                 return new ArrayList<>();
             }
 
-            // error handling for 400s,500s,
+            // error handling for 400s, 500s, etc.
         } catch (HttpClientErrorException e) {
             // 4xx errors (client errors)
             logger.error("Client error calling external API: Status={}, Body={}",
