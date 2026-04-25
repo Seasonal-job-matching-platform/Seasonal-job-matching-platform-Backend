@@ -55,6 +55,12 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
+                // Return 401 instead of 403 for bad tokens
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED,
+                                    "Unauthorized: Invalid or missing token");
+                        }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/login", "/api/users").permitAll() // login or signup done without
                                                                                        // authentication
@@ -78,7 +84,8 @@ public class SecurityConfig {
 
         // Cloudflare Pages dynamic subdomains
         config.setAllowedOriginPatterns(List.of(
-                "https://*.seasonal-job-matching-platform-frontend.pages.dev"));
+                "https://*.seasonal-job-matching-platform-frontend.pages.dev",
+                "http://localhost:8080"));
 
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

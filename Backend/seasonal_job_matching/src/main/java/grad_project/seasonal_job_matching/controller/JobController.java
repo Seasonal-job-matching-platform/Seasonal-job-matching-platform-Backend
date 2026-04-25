@@ -105,7 +105,7 @@ public class JobController {
         Long currentUserId = currentUserService.getCurrentUserId(request);
         if (currentUserId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (currentUserId != jobdto.getJobposterId())
+        if (currentUserId != jobdto.getJobposterId()) // gives 403 error with no logs
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {

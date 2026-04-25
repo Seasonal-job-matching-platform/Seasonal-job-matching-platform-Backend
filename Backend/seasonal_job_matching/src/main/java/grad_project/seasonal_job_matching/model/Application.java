@@ -46,6 +46,7 @@ public class Application {
 
     private Date createdAt;
 
+    @Column(columnDefinition = "TEXT") // so avoid 256 character limit
     private String describeYourself;
 
     @Column
