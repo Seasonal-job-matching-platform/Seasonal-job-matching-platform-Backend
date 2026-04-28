@@ -125,12 +125,12 @@ class _NotificationTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        notification.message,
+        notification.message ?? 'No message',
         style: TextStyle(
           fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
         ),
       ),
-      subtitle: Text(notification.timestamp),
+      subtitle: Text(notification.timestamp ?? ''),
       trailing: notification.isRead
           ? null
           : Container(

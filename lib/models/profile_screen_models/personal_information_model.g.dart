@@ -14,6 +14,7 @@ _PersonalInformationModel _$PersonalInformationModelFromJson(
   country: json['country'] as String,
   number: json['number'] as String,
   email: json['email'] as String,
+  wantsEmails: json['wantsEmails'] as bool?,
   favoriteJobs:
       (json['favoriteJobIds'] as List<dynamic>?)
           ?.map((e) => (e as num).toInt())
@@ -47,6 +48,7 @@ Map<String, dynamic> _$PersonalInformationModelToJson(
   'country': instance.country,
   'number': instance.number,
   'email': instance.email,
+  'wantsEmails': instance.wantsEmails,
   'favoriteJobIds': instance.favoriteJobs,
   'ownedjobs': instance.ownedjobs,
   'ownedapplications': instance.ownedapplications,

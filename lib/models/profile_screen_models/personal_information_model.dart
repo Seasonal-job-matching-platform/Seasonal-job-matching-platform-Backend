@@ -11,7 +11,7 @@ abstract class PersonalInformationModel with _$PersonalInformationModel {
     @JsonKey(name: "country") required String country,
     @JsonKey(name: "number") required String number,
     @JsonKey(name: "email") required String email,
-    //create a list of favorite jobs but not requried and make it empty by default
+    @JsonKey(name: "wantsEmails") bool? wantsEmails,
     @JsonKey(name: "favoriteJobIds") @Default([]) List<int> favoriteJobs,
     @Default([]) List<int> ownedjobs,
     @Default([]) List<int> ownedapplications,

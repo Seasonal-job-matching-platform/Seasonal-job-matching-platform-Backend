@@ -200,4 +200,14 @@ class PersonalInformationService {
         return 'An unexpected error occurred.';
     }
   }
+
+  Future<void> updateWantsEmails(bool wantsEmails) async {
+    final userId = await _getUserId();
+    final editPath = editUserById(userId);
+    try {
+      await _dio.patch(editPath, data: {'wantsEmails': wantsEmails.toString()});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
 }

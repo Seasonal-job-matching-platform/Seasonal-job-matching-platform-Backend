@@ -169,4 +169,12 @@ class PersonalInformationAsyncNotifier
       return current.copyWith(fieldsOfInterest: newInterests);
     });
   }
+
+  Future<void> updateWantsEmails(bool wantsEmails) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _service.updateWantsEmails(wantsEmails);
+      return state.value!.copyWith(wantsEmails: wantsEmails);
+    });
+  }
 }

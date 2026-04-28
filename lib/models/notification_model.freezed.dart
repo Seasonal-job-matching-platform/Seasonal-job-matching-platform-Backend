@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationModel {
 
- int get id; String get type; String get message; String get timestamp; bool get isRead; String? get applicationId; String? get jobTitle; String? get status;
+ int? get id; String? get type; String? get message; String? get timestamp; bool get isRead; String? get applicationId; String? get jobTitle; String? get status;
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $NotificationModelCopyWith<$Res>  {
   factory $NotificationModelCopyWith(NotificationModel value, $Res Function(NotificationModel) _then) = _$NotificationModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String type, String message, String timestamp, bool isRead, String? applicationId, String? jobTitle, String? status
+ int? id, String? type, String? message, String? timestamp, bool isRead, String? applicationId, String? jobTitle, String? status
 });
 
 
@@ -65,13 +65,13 @@ class _$NotificationModelCopyWithImpl<$Res>
 
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? type = null,Object? message = null,Object? timestamp = null,Object? isRead = null,Object? applicationId = freezed,Object? jobTitle = freezed,Object? status = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? type = freezed,Object? message = freezed,Object? timestamp = freezed,Object? isRead = null,Object? applicationId = freezed,Object? jobTitle = freezed,Object? status = freezed,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,timestamp: null == timestamp ? _self.timestamp : timestamp // ignore: cast_nullable_to_non_nullable
-as String,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String?,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,timestamp: freezed == timestamp ? _self.timestamp : timestamp // ignore: cast_nullable_to_non_nullable
+as String?,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
 as bool,applicationId: freezed == applicationId ? _self.applicationId : applicationId // ignore: cast_nullable_to_non_nullable
 as String?,jobTitle: freezed == jobTitle ? _self.jobTitle : jobTitle // ignore: cast_nullable_to_non_nullable
 as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -160,7 +160,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String type,  String message,  String timestamp,  bool isRead,  String? applicationId,  String? jobTitle,  String? status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String? type,  String? message,  String? timestamp,  bool isRead,  String? applicationId,  String? jobTitle,  String? status)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationModel() when $default != null:
 return $default(_that.id,_that.type,_that.message,_that.timestamp,_that.isRead,_that.applicationId,_that.jobTitle,_that.status);case _:
@@ -181,7 +181,7 @@ return $default(_that.id,_that.type,_that.message,_that.timestamp,_that.isRead,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String type,  String message,  String timestamp,  bool isRead,  String? applicationId,  String? jobTitle,  String? status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String? type,  String? message,  String? timestamp,  bool isRead,  String? applicationId,  String? jobTitle,  String? status)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationModel():
 return $default(_that.id,_that.type,_that.message,_that.timestamp,_that.isRead,_that.applicationId,_that.jobTitle,_that.status);case _:
@@ -201,7 +201,7 @@ return $default(_that.id,_that.type,_that.message,_that.timestamp,_that.isRead,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String type,  String message,  String timestamp,  bool isRead,  String? applicationId,  String? jobTitle,  String? status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String? type,  String? message,  String? timestamp,  bool isRead,  String? applicationId,  String? jobTitle,  String? status)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationModel() when $default != null:
 return $default(_that.id,_that.type,_that.message,_that.timestamp,_that.isRead,_that.applicationId,_that.jobTitle,_that.status);case _:
@@ -216,13 +216,13 @@ return $default(_that.id,_that.type,_that.message,_that.timestamp,_that.isRead,_
 @JsonSerializable()
 
 class _NotificationModel implements NotificationModel {
-  const _NotificationModel({required this.id, required this.type, required this.message, required this.timestamp, this.isRead = false, this.applicationId, this.jobTitle, this.status});
+  const _NotificationModel({this.id, this.type, this.message, this.timestamp, this.isRead = false, this.applicationId, this.jobTitle, this.status});
   factory _NotificationModel.fromJson(Map<String, dynamic> json) => _$NotificationModelFromJson(json);
 
-@override final  int id;
-@override final  String type;
-@override final  String message;
-@override final  String timestamp;
+@override final  int? id;
+@override final  String? type;
+@override final  String? message;
+@override final  String? timestamp;
 @override@JsonKey() final  bool isRead;
 @override final  String? applicationId;
 @override final  String? jobTitle;
@@ -261,7 +261,7 @@ abstract mixin class _$NotificationModelCopyWith<$Res> implements $NotificationM
   factory _$NotificationModelCopyWith(_NotificationModel value, $Res Function(_NotificationModel) _then) = __$NotificationModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String type, String message, String timestamp, bool isRead, String? applicationId, String? jobTitle, String? status
+ int? id, String? type, String? message, String? timestamp, bool isRead, String? applicationId, String? jobTitle, String? status
 });
 
 
@@ -278,13 +278,13 @@ class __$NotificationModelCopyWithImpl<$Res>
 
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? type = null,Object? message = null,Object? timestamp = null,Object? isRead = null,Object? applicationId = freezed,Object? jobTitle = freezed,Object? status = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? type = freezed,Object? message = freezed,Object? timestamp = freezed,Object? isRead = null,Object? applicationId = freezed,Object? jobTitle = freezed,Object? status = freezed,}) {
   return _then(_NotificationModel(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,timestamp: null == timestamp ? _self.timestamp : timestamp // ignore: cast_nullable_to_non_nullable
-as String,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String?,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,timestamp: freezed == timestamp ? _self.timestamp : timestamp // ignore: cast_nullable_to_non_nullable
+as String?,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
 as bool,applicationId: freezed == applicationId ? _self.applicationId : applicationId // ignore: cast_nullable_to_non_nullable
 as String?,jobTitle: freezed == jobTitle ? _self.jobTitle : jobTitle // ignore: cast_nullable_to_non_nullable
 as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
