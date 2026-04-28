@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
 import 'package:job_seeker/core/auth/auth_dialog_manager.dart';
 import 'package:job_seeker/screens/Profile/profile_screen.dart';
+import 'package:job_seeker/widgets/notification_bell_widget.dart';
 
 import 'applications_screen.dart';
 import 'home_screen.dart';
@@ -144,6 +145,7 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: true,
+        actions: const [NotificationBellWidget(), SizedBox(width: 8)],
       ),
       body: Stack(
         children: [

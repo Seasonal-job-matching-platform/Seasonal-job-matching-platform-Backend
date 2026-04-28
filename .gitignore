@@ -53,6 +53,8 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
+/tasks
+
 # Node environment files
 .env
 .env.local

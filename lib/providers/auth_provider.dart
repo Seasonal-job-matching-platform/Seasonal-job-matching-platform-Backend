@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io' show Platform;
 import 'package:job_seeker/core/auth/auth_storage.dart';
 import 'package:job_seeker/core/auth/auth_dialog_manager.dart';
 import 'package:job_seeker/providers/home_screen_providers/favorites_provider.dart';
@@ -15,6 +16,8 @@ import 'package:job_seeker/models/auth_models/signup_request_model.dart';
 import 'package:job_seeker/services/auth_service.dart';
 import 'package:job_seeker/providers/profile_screen_providers/personal_information_notifier.dart';
 import 'package:job_seeker/providers/profile_screen_providers/resume_provider.dart';
+import 'package:job_seeker/services/notification_service.dart';
+import 'package:job_seeker/services/notifications_api_service.dart';
 
 enum AuthStatus { initial, authenticated, unauthenticated }
 
@@ -94,6 +97,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.saveToken(token);
       await _storage.saveUserId(userId.toString());
 
+      await _registerFcmToken(userId);
+
       // Reset dialog manager on successful login
       AuthDialogManager().resetSessionExpired();
       print('[DEBUG] Login successful, dialog manager reset');
@@ -138,6 +143,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.saveToken(token);
       await _storage.saveUserId(userId.toString());
 
+      await _registerFcmToken(userId);
+
       // Reset dialog manager on successful signup
       AuthDialogManager().resetSessionExpired();
       print('[DEBUG] Signup successful, dialog manager reset');
@@ -161,6 +168,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     await _storage.clearToken();
     await _storage.clearUserId();
+    await _storage.clearFcmToken();
     print('[DEBUG] Storage cleared');
 
     state = AuthState(
@@ -188,5 +196,26 @@ class AuthNotifier extends Notifier<AuthState> {
     print('[DEBUG] appliedJobsLocalProvider cleared');
 
     print('[DEBUG] === LOGOUT COMPLETE ===');
+  }
+
+  Future<void> _registerFcmToken(int userId) async {
+    try {
+      final savedToken = await _storage.getFcmToken();
+      final currentToken = await NotificationService().getToken();
+
+      if (currentToken != null && currentToken != savedToken) {
+        await _storage.saveFcmToken(currentToken);
+
+        final apiService = ref.read(notificationsApiServiceProvider);
+        await apiService.registerToken(
+          userId: userId,
+          token: currentToken,
+          deviceType: Platform.isIOS ? 'iOS' : 'Android',
+        );
+        print('[DEBUG] FCM token registered successfully');
+      }
+    } catch (e) {
+      print('[DEBUG] Error registering FCM token: $e');
+    }
   }
 }

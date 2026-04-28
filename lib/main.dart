@@ -4,9 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:job_seeker/screens/auth/login_screen.dart';
 import 'package:job_seeker/theme/app_theme.dart';
 import 'package:job_seeker/core/navigation_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:job_seeker/firebase_options.dart';
+import 'package:job_seeker/services/notification_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await NotificationService().initialize();
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(

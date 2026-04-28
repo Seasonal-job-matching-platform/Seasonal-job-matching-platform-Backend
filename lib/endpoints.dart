@@ -20,3 +20,8 @@ const String LOGIN = "$USERS/login";
 const String RESUMES = "resumes";
 String resumeById(String id) => "$RESUMES/$id";
 String getUserFavoriteJobs(String userId) => "$USERS/$userId/favorite-jobs";
+
+// Notification routes
+const String NOTIFICATION_TOKEN_REGISTER = "notification-token/register-token";
+const String NOTIFICATIONS_BASE = "notifications";
+String NOTIFICATIONS(String userId) => "$NOTIFICATIONS_BASE/$userId";
