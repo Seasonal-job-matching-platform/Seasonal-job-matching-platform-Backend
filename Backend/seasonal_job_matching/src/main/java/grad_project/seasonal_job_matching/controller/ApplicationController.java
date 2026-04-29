@@ -149,7 +149,8 @@ public class ApplicationController {
      * Only the applicant who submitted the application can withdraw it.
      */
     @DeleteMapping("/{applicationId}")
-    public ResponseEntity<?> deleteApplication(@PathVariable long applicationId, HttpServletRequest request) {
+    public ResponseEntity<?> deleteApplication(@PathVariable long applicationId,
+            @RequestParam(required = true) int jobId, HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
         if (currentUserId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -157,7 +158,7 @@ public class ApplicationController {
         if (currentUserId != applicantId)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
-            applicationService.deleteApplication(applicationId);
+            applicationService.deleteApplication(applicationId, currentUserId, jobId);
             return ResponseEntity.ok(Map.of("message", "Application deleted successfully."));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

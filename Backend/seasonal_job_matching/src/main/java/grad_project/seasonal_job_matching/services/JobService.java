@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -123,6 +125,7 @@ public class JobService {
 
     }
 
+    @Cacheable(value = "jobDetails", key = "#id", unless = "#result.isEmpty()")
     public Optional<JobResponseDTO> findByID(long id) {
         return jobRepository.findById(id)
                 .map(jobMapper::maptoreturnJob);
@@ -153,6 +156,7 @@ public class JobService {
 
     }
 
+    @CacheEvict(value = "jobDetails", key = "#id")
     public JobResponseDTO editJob(JobEditDTO dto, long id) {
 
         Job existingJob = jobRepository.findById(id)
@@ -299,10 +303,12 @@ public class JobService {
 
     }
 
+    @CacheEvict(value = "jobDetails", key = "#id")
     public void deleteJob(Long id) {
         jobRepository.deleteById(id);
     }
 
+    @CacheEvict(value = "jobComments", key = "#jobId")
     @Transactional
     public JobCommentResponseDTO addComment(JobCommentCreateDTO commentDto, long jobId, long userId) {
         Job job = jobRepository.findById(jobId)
@@ -321,6 +327,7 @@ public class JobService {
 
     }
 
+    @CacheEvict(value = "jobComments", key = "#jobId")
     @Transactional
     public JobCommentResponseDTO addReply(JobCommentCreateDTO commentDto, long jobId, long userId,
             long parentCommentId) {
@@ -347,6 +354,7 @@ public class JobService {
         return commentMapper.mapToReturnComment(savedComment);
     }
 
+    @Cacheable(value = "jobComments", key = "#jobId")
     public List<JobCommentResponseDTO> getJobComments(long jobId) {
         if (!jobRepository.existsById(jobId)) {
             throw new RuntimeException("Job not found with ID: " + jobId);
@@ -363,8 +371,9 @@ public class JobService {
                 .toList();
     }
 
+    @CacheEvict(value = "jobComments", key = "#jobId")
     @Transactional
-    public void deleteComment(long commentId) {
+    public void deleteComment(long commentId, long jobId) {
         commentRepository.deleteById(commentId);
     }
 
