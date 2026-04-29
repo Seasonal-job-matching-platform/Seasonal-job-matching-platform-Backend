@@ -51,37 +51,53 @@ public class NotificationFacade {
         }
     }
 
-    // Helper method to create fixed messages with placeholders
+    // Helper method to create HTML formatted messages
     private String buildNotificationMessage(String employerName, String applicantName, Long applicationId,
             ApplicationStatusUpdateDTO dto) {
+
         switch (dto.getStatus().toString()) {
             case "ACCEPTED":
-                return String.format("Hello %s, congratulations! Your application (#%d) has been ACCEPTED by %s.",
+                return String.format(
+                        "<p>Hello <strong>%s</strong>,</p><p>Congratulations! Your application (#%d) has been <span style='color:green;'><strong>ACCEPTED</strong></span> by <strong>%s</strong>.</p>",
                         applicantName, applicationId, employerName);
 
             case "REJECTED":
-                return String.format("Hello %s, unfortunately your application (#%d) has been DECLINED by %s.",
+                return String.format(
+                        "<p>Hello <strong>%s</strong>,</p><p>Unfortunately, your application (#%d) has been <span style='color:red;'><strong>DECLINED</strong></span> by <strong>%s</strong>.</p>",
                         applicantName, applicationId, employerName);
 
             case "INTERVIEW_SCHEDULED":
                 StringBuilder sb = new StringBuilder();
-                sb.append(String.format("Hello %s, %s has scheduled an INTERVIEW for your application (#%d).",
+                sb.append(String.format(
+                        "<p>Hello <strong>%s</strong>,</p><p><strong>%s</strong> has scheduled an <strong>INTERVIEW</strong> for your application (#%d).</p>",
                         applicantName, employerName, applicationId));
 
+                sb.append(
+                        "<div style='background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin-top: 10px;'>");
+
                 if (dto.getInterviewDate() != null) {
-                    sb.append(" Date: ").append(dto.getInterviewDate());
+                    sb.append("<strong>Date:</strong> ").append(dto.getInterviewDate()).append("<br>");
                 }
                 if (dto.getInterviewTime() != null) {
-                    sb.append(" Time: ").append(dto.getInterviewTime());
+                    sb.append("<strong>Time:</strong> ").append(dto.getInterviewTime()).append("<br>");
                 }
                 if (dto.getInterviewLocation() != null && !dto.getInterviewLocation().isEmpty()) {
-                    sb.append(" Location: ").append(dto.getInterviewLocation());
+                    // Check if the location is a Zoom/Google Meet link to make it a clickable
+                    // button
+                    if (dto.getInterviewLocation().startsWith("http")) {
+                        sb.append("<strong>Location:</strong> <a href='").append(dto.getInterviewLocation())
+                                .append("'>Click here to join the meeting</a><br>");
+                    } else {
+                        sb.append("<strong>Location:</strong> ").append(dto.getInterviewLocation()).append("<br>");
+                    }
                 }
+                sb.append("</div>");
                 return sb.toString();
 
             case "PENDING":
             default:
-                return String.format("Hello %s, the status of your application (#%d) with %s is now %s.",
+                return String.format(
+                        "<p>Hello <strong>%s</strong>,</p><p>The status of your application (#%d) with <strong>%s</strong> is now <strong>%s</strong>.</p>",
                         applicantName, applicationId, employerName, dto.getStatus().name());
         }
     }
