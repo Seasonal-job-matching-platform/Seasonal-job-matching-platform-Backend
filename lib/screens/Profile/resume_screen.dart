@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/profile_screen_providers/resume_provider.dart';
 import 'package:job_seeker/models/profile_screen_models/resume_model.dart';
 import 'package:job_seeker/constants/constants.dart';
@@ -150,14 +151,15 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final resumeState = ref.watch(resumeProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text(
-          'My Resume',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.myJobResume,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -179,7 +181,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
                       setState(() => _isEditing = true);
                     }
                   },
-                  tooltip: _isEditing ? 'Save Changes' : 'Edit Resume',
+                  tooltip: _isEditing ? l10n.save : l10n.editProfile,
                 )
               : const SizedBox(),
           const SizedBox(width: 8),
@@ -213,6 +215,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -227,7 +230,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
           ElevatedButton.icon(
             onPressed: () => ref.read(resumeProvider.notifier).createResume(),
             icon: const Icon(Icons.add),
-            label: const Text('Create Resume'),
+            label: Text(l10n.createResume),
           ),
         ],
       ),
@@ -235,27 +238,28 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
   }
 
   Widget _buildResumeView(ResumeModel resume) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           _buildInfoCard(
-            title: 'Experience',
+            title: l10n.experience,
             icon: Icons.work_outline,
             items: resume.experience,
             color: Colors.blue,
           ),
           const SizedBox(height: 16),
           _buildInfoCard(
-            title: 'Education',
+            title: l10n.education,
             icon: Icons.school_outlined,
             items: resume.education,
             color: Colors.orange,
           ),
           const SizedBox(height: 16),
           _buildInfoCard(
-            title: 'Skills',
+            title: l10n.skills,
             icon: Icons.psychology_outlined,
             items: resume.skills,
             color: Colors.purple,
@@ -263,7 +267,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
           ),
           const SizedBox(height: 16),
           _buildInfoCard(
-            title: 'Languages',
+            title: l10n.languages,
             icon: Icons.language,
             items: resume.languages,
             color: Colors.green,
@@ -271,7 +275,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
           ),
           const SizedBox(height: 16),
           _buildInfoCard(
-            title: 'Certificates',
+            title: l10n.certificates,
             icon: Icons.card_membership,
             items: resume.certificates,
             color: Colors.teal,
@@ -394,6 +398,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
   }
 
   Widget _buildEditForm() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(16),
@@ -403,21 +408,21 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
           children: [
             _buildTextField(
               _educationController,
-              'Education',
+              l10n.education,
               'Add education details...',
               Icons.school_outlined,
             ),
             const SizedBox(height: 16),
             _buildTextField(
               _experienceController,
-              'Experience',
+              l10n.experience,
               'Add work experience...',
               Icons.work_outline,
             ),
             const SizedBox(height: 16),
             _buildTextField(
               _skillsController,
-              'Skills',
+              l10n.skills,
               'Add skills (one per line)...',
               Icons.psychology_outlined,
             ),
@@ -426,7 +431,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
             const SizedBox(height: 16),
             _buildTextField(
               _certificatesController,
-              'Certificates',
+              l10n.certificates,
               'Add certificates...',
               Icons.card_membership,
             ),
@@ -438,6 +443,7 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
   }
 
   Widget _buildLanguageSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -457,11 +463,11 @@ class _ResumeScreenState extends ConsumerState<ResumeScreen> {
             children: [
               Icon(Icons.language, color: Colors.grey.shade400),
               const SizedBox(width: 12),
-              const Text(
-                'Languages',
-                style: TextStyle(
+              Text(
+                l10n.languages,
+                style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.black54, // Match typical label color
+                  color: Colors.black54,
                 ),
               ),
             ],

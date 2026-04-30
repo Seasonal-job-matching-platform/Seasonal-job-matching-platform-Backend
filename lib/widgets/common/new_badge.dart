@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class NewBadge extends StatefulWidget {
   final bool animate;
+  final String? text;
 
-  const NewBadge({super.key, this.animate = false});
+  const NewBadge({super.key, this.animate = false, this.text});
 
   @override
   State<NewBadge> createState() => _NewBadgeState();
@@ -48,8 +49,8 @@ class _NewBadgeState extends State<NewBadge>
           color: const Color(0xFF10B981), // Success color
           borderRadius: BorderRadius.circular(4),
         ),
-        child: const Text(
-          'NEW',
+        child: Text(
+          widget.text ?? 'NEW',
           style: TextStyle(
             color: Colors.white,
             fontSize: 10,

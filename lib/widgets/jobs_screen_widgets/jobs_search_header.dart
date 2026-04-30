@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/jobs_screen_providers/jobs_filter_provider.dart';
 import 'package:job_seeker/theme/app_theme.dart';
 import 'package:job_seeker/widgets/common/animated_scale_button.dart';
@@ -49,6 +50,7 @@ class _JobsSearchHeaderState extends ConsumerState<JobsSearchHeader> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final filterState = ref.watch(jobsFilterProvider);
     final hasActiveFilters =
         filterState.searchQuery.isNotEmpty ||
@@ -227,9 +229,9 @@ class _JobsSearchHeaderState extends ConsumerState<JobsSearchHeader> {
                                   color: colorScheme.error,
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  'Clear',
-                                  style: TextStyle(
+                                 Text(
+                                   l10n.clear,
+                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: colorScheme.error,
@@ -257,9 +259,9 @@ class _JobsSearchHeaderState extends ConsumerState<JobsSearchHeader> {
                   alpha: 0.2,
                 ),
               ),
-              child: Text(
-                '${widget.jobCount} ${widget.jobCount == 1 ? 'job' : 'jobs'} found',
-                style: theme.textTheme.labelMedium?.copyWith(
+               child: Text(
+                 '${widget.jobCount} ${widget.jobCount == 1 ? l10n.jobFound : l10n.jobsFound}',
+                 style: theme.textTheme.labelMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
@@ -344,6 +346,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -376,17 +379,17 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Filters',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+               Text(
+                 l10n.filters,
+                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+               ),
               const SizedBox(height: 24),
 
               // Location Input
-              const Text(
-                'Location',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
+              Text(
+                 l10n.location,
+                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _locationController,
@@ -405,8 +408,8 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
               const SizedBox(height: 24),
 
               // Salary Type Selector
-              const Text(
-                'Salary Type',
+              Text(
+                l10n.salaryTypeLabel,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 12),
@@ -414,8 +417,14 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                 spacing: 8,
                 children: ['HOURLY', 'MONTHLY', 'YEARLY'].map((type) {
                   final isSelected = _salaryType == type;
+                  // Map API values to localized labels
+                  final salaryLabels = {
+                    'HOURLY': l10n.hourlySalary,
+                    'MONTHLY': l10n.monthlySalary,
+                    'YEARLY': l10n.yearlySalary,
+                  };
                   return ChoiceChip(
-                    label: Text(type),
+                    label: Text(salaryLabels[type] ?? type),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
@@ -447,7 +456,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text("Reset"),
+                      child: Text(l10n.reset),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -467,7 +476,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                         ),
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text("Apply Filters"),
+                      child: Text(l10n.applyFilters),
                     ),
                   ),
                 ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
+import 'package:job_seeker/providers/locale_provider.dart';
 import 'package:job_seeker/screens/auth/signup_screen.dart';
 import 'package:job_seeker/screens/layout_screen.dart';
 import 'package:job_seeker/theme/app_theme.dart';
@@ -22,7 +24,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  bool _hasNavigated = false;
+  final bool _hasNavigated = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -103,28 +106,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.status == AuthStatus.authenticated &&
-          mounted &&
-          !_hasNavigated) {
-        _hasNavigated = true;
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const LayoutScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-            transitionDuration: AppTheme.animNormal,
-          ),
-        );
-      }
-    });
-
-    final authState = ref.watch(authProvider);
-    final isLoading = authState.isLoading;
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -139,9 +123,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 60),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 60),
                   child: Column(
                     children: [
+                      // Language selector (top right)
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: TextButton.icon(
+                          onPressed: () {
+                            final newLocale = currentLocale.languageCode == 'en'
+                                ? const Locale('ar')
+                                : const Locale('en');
+                            ref
+                                .read(localeProvider.notifier)
+                                .setLocale(newLocale.languageCode);
+                          },
+                          icon: Icon(
+                            currentLocale.languageCode == 'en'
+                                ? Icons.language
+                                : Icons.language,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          label: Text(
+                            currentLocale.languageCode == 'en'
+                                ? 'العربية'
+                                : 'English',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
                       // Animated Logo
                       TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
@@ -179,8 +190,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       // Welcome text
                       FadeTransition(
                         opacity: _fadeAnimation,
-                        child: const Text(
-                          'Welcome Back',
+                        child: Text(
+                          l10n.welcomeBack,
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -193,7 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Text(
-                          'Sign in to find your next opportunity',
+                          l10n.signInToFindOpportunity,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.9),
@@ -244,8 +255,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   color: theme.colorScheme.onSurface,
                                 ),
                                 decoration: InputDecoration(
-                                  labelText: 'Email',
-                                  hintText: 'Enter your email',
+                                  labelText: l10n.email,
+                                  hintText: l10n.enterYourEmail,
                                   prefixIcon: Icon(
                                     Icons.email_outlined,
                                     color: theme.colorScheme.primary,
@@ -255,12 +266,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter your email';
+                                    return l10n.enterYourEmail2;
                                   }
                                   if (!RegExp(
                                     r'^[\w\.-]+@[\w\.-]+\.\w{2,}$',
                                   ).hasMatch(value)) {
-                                    return 'Please enter a valid email';
+                                    return l10n.enterValidEmail2;
                                   }
                                   return null;
                                 },
@@ -280,8 +291,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   color: theme.colorScheme.onSurface,
                                 ),
                                 decoration: InputDecoration(
-                                  labelText: 'Password',
-                                  hintText: 'Enter your password',
+                                  labelText: l10n.password,
+                                  hintText: l10n.enterYourPassword,
                                   prefixIcon: Icon(
                                     Icons.lock_outlined,
                                     color: theme.colorScheme.primary,
@@ -304,10 +315,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your password';
+                                    return l10n.enterYourPassword2;
                                   }
                                   if (value.length < 6) {
-                                    return 'Password must be at least 6 characters';
+                                    return l10n.passwordMustBe6;
                                   }
                                   return null;
                                 },
@@ -332,7 +343,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Don't have an account? ",
+                                    l10n.dontHaveAccount2,
                                     style: TextStyle(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
@@ -383,7 +394,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                             );
                                           },
                                     child: Text(
-                                      'Sign Up',
+                                      l10n.signUp2,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         color: theme.colorScheme.primary,
@@ -442,6 +453,7 @@ class _LoginButtonState extends State<_LoginButton>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTapDown: widget.isLoading ? null : (_) => _controller.forward(),
       onTapUp: widget.isLoading
@@ -473,11 +485,11 @@ class _LoginButtonState extends State<_LoginButton>
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Sign In',
+                        l10n.signIn2,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/jobs_screen_providers/job_apply_provider.dart';
 
 Future<void> showJobApplyDialog(
@@ -28,6 +29,7 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
   late final TextEditingController _controller;
   late final GlobalKey<FormState> _formKey;
   bool _showSuccess = false;
+  late AppLocalizations l10n;
 
   @override
   void initState() {
@@ -88,6 +90,7 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
 
   @override
   Widget build(BuildContext context) {
+    l10n = AppLocalizations.of(context)!;
     final applyState = ref.watch(applyControllerProvider);
     final isLoading = applyState.isLoading;
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
@@ -169,7 +172,7 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Apply for this position',
+          l10n.applyForPosition,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -231,9 +234,9 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text(
-                    'Submit Application',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                : Text(
+                    l10n.submitApplication,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/models/jobs_screen_models/job_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/providers/jobs_screen_providers/job_apply_provider.dart';
@@ -18,6 +19,7 @@ class JobView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final isOpen = job.status.toLowerCase() == "open";
     final personal = ref.watch(personalInformationProvider);
     final isFav = personal.maybeWhen(
@@ -255,7 +257,7 @@ class JobView extends ConsumerWidget {
                       const SizedBox(height: 32),
 
                       // Description
-                      _SectionTitle(title: 'Description'),
+                      _SectionTitle(title: l10n.description),
                       const SizedBox(height: 12),
                       Text(
                         job.description,
@@ -270,7 +272,7 @@ class JobView extends ConsumerWidget {
 
                       // Requirements
                       if (job.requirements.isNotEmpty) ...[
-                        _SectionTitle(title: 'Requirements'),
+                        _SectionTitle(title: l10n.requirements),
                         const SizedBox(height: 16),
                         ...job.requirements.map(
                           (req) => _BulletPoint(text: req),
@@ -280,7 +282,7 @@ class JobView extends ConsumerWidget {
 
                       // Benefits
                       if (job.benefits.isNotEmpty) ...[
-                        _SectionTitle(title: 'Benefits'),
+                        _SectionTitle(title: l10n.benefits),
                         const SizedBox(height: 16),
                         Wrap(
                           spacing: 8,
@@ -379,6 +381,7 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -391,7 +394,7 @@ class _StatusPill extends StatelessWidget {
         ),
       ),
       child: Text(
-        isOpen ? 'Open Position' : 'Closed',
+        isOpen ? l10n.openPosition : l10n.closed,
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
@@ -486,12 +489,14 @@ class _BenefitChip extends StatelessWidget {
         children: [
           Icon(Icons.check, size: 14, color: Colors.grey.shade600),
           const SizedBox(width: 6),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
             ),
           ),
         ],
@@ -513,6 +518,7 @@ class _ApplyButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final hasApplied = ref.watch(jobAppliedProvider(job.id.toString()));
     final applyState = ref.watch(applyControllerProvider);
     final isLoading = applyState.isLoading;
@@ -544,7 +550,7 @@ class _ApplyButton extends ConsumerWidget {
                 ),
               )
             : Text(
-                hasApplied ? 'Applied' : 'Apply Now',
+                hasApplied ? l10n.applied : l10n.applyNow,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,

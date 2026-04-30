@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/models/jobs_screen_models/job_comment_model.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
 import 'package:job_seeker/providers/jobs_screen_providers/job_comments_provider.dart';
@@ -54,19 +55,20 @@ class _JobCommentsSectionState extends ConsumerState<JobCommentsSection> {
   }
 
   Future<void> _deleteComment(int commentId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Comment'),
+        title: Text(l10n.deleteComment),
         content: const Text('Are you sure you want to delete this comment?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -81,147 +83,7 @@ class _JobCommentsSectionState extends ConsumerState<JobCommentsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final commentsState = ref.watch(jobCommentsNotifierProvider);
-    final authState = ref.watch(authProvider);
-    final currentUserId = authState.userId;
-    final isJobPoster = currentUserId == widget.jobPosterId;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 32),
-        const _SectionTitle(title: 'Q&A'),
-        const SizedBox(height: 16),
-        _CommentInput(
-          controller: _commentController,
-          isSubmitting: _isSubmitting,
-          onSubmit: _submitComment,
-        ),
-        const SizedBox(height: 24),
-        commentsState.when(
-          loading: () => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
-          ),
-          error: (error, _) => Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Failed to load comments: $error',
-              style: TextStyle(color: Colors.red.shade400),
-            ),
-          ),
-          data: (comments) {
-            if (comments.isEmpty) {
-              return const _EmptyComments();
-            }
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: comments.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final comment = comments[index];
-                final isOwner = currentUserId == comment.userId;
-                return _CommentCard(
-                  comment: comment,
-                  isOwner: isOwner,
-                  isJobPoster: isJobPoster,
-                  onDelete: isOwner ? () => _deleteComment(comment.id) : null,
-                );
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: Color(0xFF1E293B),
-      ),
-    );
-  }
-}
-
-class _CommentInput extends StatelessWidget {
-  final TextEditingController controller;
-  final bool isSubmitting;
-  final VoidCallback onSubmit;
-
-  const _CommentInput({
-    required this.controller,
-    required this.isSubmitting,
-    required this.onSubmit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Expanded(
-          child: TextField(
-            controller: controller,
-            maxLines: 3,
-            minLines: 1,
-            decoration: InputDecoration(
-              hintText: 'Ask a question about this job...',
-              filled: true,
-              fillColor: Colors.grey.shade50,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade200),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade200),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF4E60FF)),
-              ),
-              contentPadding: const EdgeInsets.all(12),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: isSubmitting ? null : onSubmit,
-          icon: isSubmitting
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.send_rounded),
-          style: IconButton.styleFrom(
-            backgroundColor: const Color(0xFF4E60FF),
-            foregroundColor: Colors.white,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _EmptyComments extends StatelessWidget {
-  const _EmptyComments();
-
-  @override
-  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -238,7 +100,7 @@ class _EmptyComments extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'No questions yet',
+            l10n.noQuestionsYet,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,

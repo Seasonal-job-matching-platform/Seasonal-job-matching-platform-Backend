@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/services/applications_screen_services/applications_service.dart';
 import 'package:job_seeker/widgets/common/app_card.dart';
 
@@ -37,6 +38,7 @@ class ApplicationDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final job = item.job;
     final app = item.application;
     final statusColor = _getStatusColor(app.applicationStatus);
@@ -118,7 +120,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Application Status',
+                                      l10n.applicationStatus,
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.grey.shade600,
@@ -320,8 +322,8 @@ class ApplicationDetailScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                const Text(
-                                  'Your Application',
+                                Text(
+                                  l10n.yourApplication,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -333,7 +335,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                             if (app.describeYourself != null) ...[
                               const SizedBox(height: 20),
                               Text(
-                                'About You',
+                                l10n.aboutYou,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -353,7 +355,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                             if (app.coverLetter != null) ...[
                               const SizedBox(height: 20),
                               Text(
-                                'Cover Letter',
+                                l10n.coverLetter,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -402,8 +404,8 @@ class ApplicationDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Text(
-                                'Job Details',
+                              Text(
+                                l10n.jobDetails,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
@@ -423,8 +425,8 @@ class ApplicationDetailScreen extends StatelessWidget {
                           ),
                           if (job.requirements.isNotEmpty) ...[
                             const SizedBox(height: 20),
-                            const Text(
-                              'Requirements',
+                            Text(
+                              l10n.requirements,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -465,8 +467,8 @@ class ApplicationDetailScreen extends StatelessWidget {
                           ],
                           if (job.benefits.isNotEmpty) ...[
                             const SizedBox(height: 20),
-                            const Text(
-                              'Benefits',
+                            Text(
+                              l10n.benefits,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,

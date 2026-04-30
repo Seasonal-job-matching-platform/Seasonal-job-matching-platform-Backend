@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:job_seeker/providers/auth_provider.dart';
 
 void main() {
   group('AuthNotifier - State Management Tests', () {

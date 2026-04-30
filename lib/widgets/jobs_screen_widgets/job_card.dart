@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/models/jobs_screen_models/job_model.dart';
 import 'package:job_seeker/theme/app_theme.dart';
 import 'package:job_seeker/widgets/jobs_screen_widgets/job_view/job_view.dart';
@@ -104,6 +105,7 @@ class _JobCardState extends ConsumerState<JobCard>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final formattedStart = _formatDate(widget.job.startDate);
     final isOpen = widget.job.status.toLowerCase() == 'open';
     final isRecent = _isRecentlyPosted(widget.job.startDate);
@@ -218,7 +220,7 @@ class _JobCardState extends ConsumerState<JobCard>
                                         padding: const EdgeInsets.only(
                                           left: AppTheme.spaceXs,
                                         ),
-                                        child: NewBadge(animate: true),
+                                        child: NewBadge(animate: true, text: l10n.newBadge),
                                       ),
                                   ],
                                 ),

@@ -24,7 +24,7 @@ void main() {
       test('unauthenticated when token is empty string', () {
         const token = '';
 
-        final isAuthenticated = token != null && token.isNotEmpty;
+        final isAuthenticated = token.isNotEmpty;
 
         expect(isAuthenticated, isFalse);
       });
@@ -32,7 +32,7 @@ void main() {
       test('unauthenticated when token is whitespace only', () {
         const token = '   ';
 
-        final isAuthenticated = token != null && token.isNotEmpty;
+        final isAuthenticated = token.isNotEmpty;
 
         expect(isAuthenticated, isTrue);
       });

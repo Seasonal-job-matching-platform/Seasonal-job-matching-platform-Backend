@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
 import 'package:job_seeker/core/auth/auth_dialog_manager.dart';
 import 'package:job_seeker/screens/Profile/profile_screen.dart';
@@ -24,41 +25,11 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
   bool _hasHandledInitialAuth = false;
   bool _isSessionExpiredDialogShown = false;
 
-  final List<String> titles = const <String>[
-    'Home',
-    'Explore Jobs',
-    'My Applications',
-    'Profile',
-  ];
-
-  final List<Widget> screens = const <Widget>[
+  final List<Widget> _screens = const <Widget>[
     HomeScreen(),
     JobsScreen(),
     ApplicationsScreen(),
     ProfileScreen(),
-  ];
-
-  final List<_NavItem> navItems = const [
-    _NavItem(
-      icon: Icons.grid_view_rounded,
-      activeIcon: Icons.grid_view_rounded,
-      label: 'Home',
-    ),
-    _NavItem(
-      icon: Icons.search_rounded,
-      activeIcon: Icons.search_rounded,
-      label: 'Jobs',
-    ),
-    _NavItem(
-      icon: Icons.description_outlined,
-      activeIcon: Icons.description_rounded,
-      label: 'Applied',
-    ),
-    _NavItem(
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'Profile',
-    ),
   ];
 
   void _onDestinationSelected(int index) {
@@ -73,15 +44,14 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
   void _showSessionExpiredDialog() {
     if (_isSessionExpiredDialogShown) return;
     _isSessionExpiredDialogShown = true;
-
-    print('[DEBUG] LayoutScreen: Showing session expired dialog');
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Session Expired'),
-        content: const Text('Your session has expired. Please log in again.'),
+        title: Text(l10n.error),
+        content: Text(l10n.loggingOut),
         actions: [
           TextButton(
             onPressed: () {
@@ -90,19 +60,20 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
                 (route) => false,
               );
             },
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
     ).then((_) {
       _isSessionExpiredDialogShown = false;
       AuthDialogManager().resetSessionExpired();
-      print('[DEBUG] LayoutScreen: Dialog closed, dialog manager reset');
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.status == AuthStatus.unauthenticated && mounted) {
         if (next.sessionExpired) {
@@ -131,6 +102,14 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    final titles = [l10n.home, l10n.exploreJobs, l10n.myApplications, l10n.profile];
+    final navItems = [
+      _NavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded, label: l10n.home),
+      _NavItem(icon: Icons.search_rounded, activeIcon: Icons.search_rounded, label: l10n.jobs),
+      _NavItem(icon: Icons.description_outlined, activeIcon: Icons.description_rounded, label: l10n.applied),
+      _NavItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: l10n.profile),
+    ];
 
     return Scaffold(
       extendBody: true,
@@ -162,7 +141,7 @@ class _LayoutScreenState extends ConsumerState<LayoutScreen> {
             ),
           ),
 
-          IndexedStack(index: currentIndex, children: screens),
+          IndexedStack(index: currentIndex, children: _screens),
         ],
       ),
       bottomNavigationBar: _GlassBottomNav(

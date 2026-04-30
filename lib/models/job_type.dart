@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
+
 enum JobType {
   fullTime,
   partTime,
@@ -25,6 +28,27 @@ extension JobTypeExtension on JobType {
         return 'Volunteer';
       case JobType.internship:
         return 'Internship';
+    }
+  }
+
+  /// Returns the localized label for the job type
+  String localizedLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (this) {
+      case JobType.fullTime:
+        return l10n.fullTime;
+      case JobType.partTime:
+        return l10n.partTime;
+      case JobType.freelance:
+        return l10n.freelance;
+      case JobType.contract:
+        return l10n.contract;
+      case JobType.temporary:
+        return l10n.temporary;
+      case JobType.volunteer:
+        return l10n.volunteer;
+      case JobType.internship:
+        return l10n.internship;
     }
   }
 

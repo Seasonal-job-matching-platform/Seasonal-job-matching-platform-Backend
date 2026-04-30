@@ -11,6 +11,7 @@ import 'package:job_seeker/widgets/common/shimmer_loading.dart';
 import 'package:job_seeker/widgets/common/staggered_list_item.dart';
 import 'package:job_seeker/widgets/common/status_badge.dart';
 import 'package:job_seeker/widgets/common/animated_scale_button.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 
 class ApplicationsScreen extends ConsumerWidget {
   const ApplicationsScreen({super.key});
@@ -20,6 +21,7 @@ class ApplicationsScreen extends ConsumerWidget {
     final applicationsValue = ref.watch(applicationsProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -154,6 +156,7 @@ class _TimelineApplicationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final job = item.job;
     final app = item.application;
     final statusColor = _getStatusColor(app.applicationStatus, colorScheme);
@@ -217,7 +220,7 @@ class _TimelineApplicationCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Application Status',
+                                  l10n.applicationStatus,
                                   style: theme.textTheme.labelSmall?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
@@ -313,9 +316,9 @@ class _TimelineApplicationCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Expanded(
-                            child: Text(
-                              'Tap to view details',
-                              style: theme.textTheme.labelMedium?.copyWith(
+                              child: Text(
+                                l10n.tapToView,
+                                style: theme.textTheme.labelMedium?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -570,6 +573,7 @@ class _EmptyApplicationsState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -606,7 +610,7 @@ class _EmptyApplicationsState extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spaceLg),
             Text(
-              'No Applications Yet',
+              l10n.noApplications,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colorScheme.onSurface,
@@ -627,7 +631,7 @@ class _EmptyApplicationsState extends StatelessWidget {
                 // Navigate to jobs
               },
               icon: const Icon(Icons.search),
-              label: const Text('Browse Jobs'),
+              label: Text(l10n.exploreJobs),
             ),
           ],
         ),

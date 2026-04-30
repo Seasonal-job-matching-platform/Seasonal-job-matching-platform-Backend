@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/models/jobs_screen_models/job_model.dart';
 import 'package:job_seeker/providers/home_screen_providers/favorites_provider.dart';
 import 'package:job_seeker/widgets/common/shimmer_loading.dart';
@@ -13,6 +14,7 @@ class FavoriteJobsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final favoritesValue = ref.watch(favoriteJobsProvider);
 
     return favoritesValue.when(
@@ -32,7 +34,7 @@ class FavoriteJobsSection extends ConsumerWidget {
       },
       loading: () => const _FavoritesSkeletonLoader(),
       error: (e, st) => _FavoritesErrorState(
-        message: 'Failed to load saved jobs',
+        message: l10n.failedToLoadSaved,
         onRetry: () {
           HapticFeedback.selectionClick();
           ref.invalidate(favoriteJobsProvider);
@@ -72,8 +74,19 @@ class _FavoriteJobsList extends StatelessWidget {
 
         const SizedBox(height: 8),
 
-        // Vertical list of job cards
-        ...jobs.map((job) => JobCard(job: job)),
+        // Unbounded vertical list of job cards
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: jobs.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+              child: JobCard(job: jobs[index], isViewed: false, onTap: () {}),
+            );
+          },
+        ),
       ],
     );
   }
@@ -88,6 +101,7 @@ class _PartialErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -105,7 +119,7 @@ class _PartialErrorBanner extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            '$failedCount failed',
+            l10n.failedToLoadSaved,
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.colorScheme.onErrorContainer,
             ),
@@ -114,7 +128,7 @@ class _PartialErrorBanner extends StatelessWidget {
           GestureDetector(
             onTap: onRetry,
             child: Text(
-              'Retry',
+              l10n.retry,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onErrorContainer,
                 fontWeight: FontWeight.w600,
@@ -132,6 +146,7 @@ class _EmptyFavoritesState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -168,7 +183,7 @@ class _EmptyFavoritesState extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'No Saved Jobs Yet',
+                  l10n.noSavedJobsYet,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: Colors.grey.shade800,
@@ -195,19 +210,17 @@ class _FavoritesSkeletonLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 220,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: 3,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ShimmerLoading(width: 300, height: 200, borderRadius: 16),
-          );
-        },
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+          child: ShimmerLoading(width: double.infinity, height: 180, borderRadius: 16),
+        );
+      },
     );
   }
 }

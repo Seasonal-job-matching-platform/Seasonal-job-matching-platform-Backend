@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/providers/notification_provider.dart';
 import 'package:job_seeker/screens/notifications_screen.dart';
+import 'package:job_seeker/theme/app_theme.dart';
 
 class NotificationBellWidget extends ConsumerWidget {
   const NotificationBellWidget({super.key});

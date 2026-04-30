@@ -1,6 +1,12 @@
 import 'dart:async';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('[NotificationService] Background message: ${message.notification?.title}');
+}
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -17,9 +23,7 @@ class NotificationService {
     if (permission.authorizationStatus == AuthorizationStatus.authorized) {
       print('[NotificationService] Permission granted');
     } else {
-      print(
-        '[NotificationService] Permission denied: ${permission.authorizationStatus}',
-      );
+      print('[NotificationService] Permission denied: ${permission.authorizationStatus}');
     }
 
     await _firebaseMessaging.setForegroundNotificationPresentationOptions(
@@ -28,6 +32,7 @@ class NotificationService {
       sound: true,
     );
 
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
     _onMessageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
       _handleMessageOpenedApp,
@@ -46,16 +51,12 @@ class NotificationService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
-    print(
-      '[NotificationService] Foreground message: ${message.notification?.title}',
-    );
+    print('[NotificationService] Foreground message: ${message.notification?.title}');
     _onMessageCallback?.call(message);
   }
 
   void _handleMessageOpenedApp(RemoteMessage message) {
-    print(
-      '[NotificationService] App opened from notification: ${message.notification?.title}',
-    );
+    print('[NotificationService] App opened from notification: ${message.notification?.title}');
     _onMessageCallback?.call(message);
   }
 
@@ -64,20 +65,10 @@ class NotificationService {
   }
 
   void onMessageOpened(Function(RemoteMessage) callback) {
-    _onMessageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
-      callback,
-    );
+    _onMessageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(callback);
   }
 
-  Future<void> onBackgroundMessage(RemoteMessage message) async {
-    print(
-      '[NotificationService] Background message: ${message.notification?.title}',
-    );
-  }
-
-  Map<String, dynamic>? parseApplicationStatusNotification(
-    RemoteMessage message,
-  ) {
+  Map<String, dynamic>? parseApplicationStatusNotification(RemoteMessage message) {
     final data = message.data;
     if (data['type'] == 'APPLICATION_STATUS') {
       return {

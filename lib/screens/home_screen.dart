@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/home_screen_providers/favorites_provider.dart';
 import 'package:job_seeker/providers/home_screen_providers/recommended_jobs_provider.dart';
 import 'package:job_seeker/widgets/common/shimmer_loading.dart';
@@ -12,6 +13,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final recommendedValue = ref.watch(recommendedJobsProvider);
 
     return RefreshIndicator(
@@ -34,8 +36,8 @@ class HomeScreen extends ConsumerWidget {
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
             // 1. Recommended Section Header
-            const SliverToBoxAdapter(
-              child: _SectionHeader(title: "Recommended For You"),
+            SliverToBoxAdapter(
+              child: _SectionHeader(title: l10n.recommendedForYou),
             ),
 
             // 2. Recommended Carousel
@@ -52,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
                   SliverToBoxAdapter(child: _RecommendedJobsSkeletonLoader()),
               error: (e, st) => SliverToBoxAdapter(
                 child: _ErrorState(
-                  message: "Failed to load recommendations",
+                  message: l10n.failedToLoad,
                   onRetry: () {
                     HapticFeedback.selectionClick();
                     ref.invalidate(recommendedJobsProvider);
@@ -64,8 +66,8 @@ class HomeScreen extends ConsumerWidget {
             const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
 
             // 3. Saved Jobs Header
-            const SliverToBoxAdapter(
-              child: _SectionHeader(title: "Saved Jobs"),
+            SliverToBoxAdapter(
+              child: _SectionHeader(title: l10n.savedJobs),
             ),
 
             // 4. Saved Jobs Section

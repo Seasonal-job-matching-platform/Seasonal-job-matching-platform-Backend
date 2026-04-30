@@ -10,6 +10,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:job_seeker/firebase_options.dart';
 import 'package:job_seeker/services/notification_service.dart';
 import 'package:job_seeker/providers/locale_provider.dart';
+import 'package:job_seeker/providers/auth_provider.dart';
+import 'package:job_seeker/screens/layout_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +54,61 @@ class MyApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const LoginScreen(),
+      home: const SplashWrapper(),
+    );
+  }
+}
+
+class SplashWrapper extends ConsumerStatefulWidget {
+  const SplashWrapper({super.key});
+
+  @override
+  ConsumerState<SplashWrapper> createState() => _SplashWrapperState();
+}
+
+class _SplashWrapperState extends ConsumerState<SplashWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkStatus(ref.read(authProvider));
+    });
+  }
+
+  void _checkStatus(AuthState state) {
+    if (state.status == AuthStatus.authenticated) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const LayoutScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: AppTheme.animNormal,
+        ),
+      );
+    } else if (state.status == AuthStatus.unauthenticated) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: AppTheme.animNormal,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      _checkStatus(next);
+    });
+
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }

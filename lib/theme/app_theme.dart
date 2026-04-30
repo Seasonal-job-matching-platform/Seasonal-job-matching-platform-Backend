@@ -508,6 +508,7 @@ class AppTheme {
   // SEMANTIC COLORS HELPERS
   // ============================================
 
+  static Color get primary => _primaryBlue;
   static Color get success => _success;
   static Color get warning => _warning;
   static Color get error => _error;

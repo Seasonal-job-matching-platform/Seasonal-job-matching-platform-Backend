@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/screens/Profile/resume_screen.dart';
 import 'package:job_seeker/providers/profile_screen_providers/personal_information_notifier.dart';
 import 'package:job_seeker/widgets/common/animated_scale_button.dart';
@@ -25,6 +26,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final personalInfo = ref.watch(personalInformationProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -39,14 +41,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // 1. Minimal Header
             SliverToBoxAdapter(
               child: personalInfo.when(
-                data: (user) => _buildMinimalHeader(context, user),
+                data: (user) => _buildMinimalHeader(context, user, l10n),
                 loading: () => const SizedBox(
                   height: 300,
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (e, s) => const SizedBox(
+                error: (e, s) => SizedBox(
                   height: 300,
-                  child: Center(child: Text('Error loading profile')),
+                  child: Center(child: Text('${l10n.error}: $e')),
                 ),
               ),
             ),
@@ -59,11 +61,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     const SizedBox(height: 24),
                     // Resume Card
-                    _buildResumeCard(context, colorScheme),
+                    _buildResumeCard(context, colorScheme, l10n),
                     const SizedBox(height: 24),
 
                     // Personal Details
-                    _buildSectionTitle(context, 'Personal Details'),
+                    _buildSectionTitle(context, l10n.personalDetails),
                     const SizedBox(height: 12),
                     personalInfo.when(
                       data: (user) => _buildPersonalDetails(context, user),
@@ -73,7 +75,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     const SizedBox(height: 32),
 
                     // Account Settings
-                    _buildSectionTitle(context, 'Account'),
+                    _buildSectionTitle(context, l10n.account),
                     const SizedBox(height: 12),
                     const AccountSettingsSection(),
 
@@ -88,7 +90,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildMinimalHeader(BuildContext context, dynamic user) {
+  Widget _buildMinimalHeader(BuildContext context, dynamic user, AppLocalizations l10n) {
     final theme = Theme.of(context);
 
     return Container(
@@ -159,14 +161,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               side: BorderSide(color: Colors.grey.shade300),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             ),
-            child: const Text('Edit Profile'),
+            child: Text(l10n.editProfile),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildResumeCard(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildResumeCard(BuildContext context, ColorScheme colorScheme, AppLocalizations l10n) {
     return AnimatedScaleButton(
       onPressed: _onResumePressed,
       child: Container(
@@ -210,9 +212,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'My Job Resume',
-                    style: TextStyle(
+                  Text(
+                    l10n.myJobResume,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -220,7 +222,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Tap to view & edit details',
+                    l10n.tapToView,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 14,
@@ -250,6 +252,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildPersonalDetails(BuildContext context, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
     final interests = List<String>.from(user.fieldsOfInterest ?? []);
 
     return Container(
@@ -271,15 +274,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildDetailRow(
             context,
             Icons.phone_outlined,
-            'Phone',
-            user.number ?? 'Not set',
+            l10n.phone,
+            user.number ?? l10n.notSet,
             isFirst: true,
           ),
           _buildDetailRow(
             context,
             Icons.flag_outlined,
-            'Nationality',
-            user.country ?? 'Not set',
+            l10n.nationality,
+            user.country ?? l10n.notSet,
             isLast: interests.isEmpty,
           ),
           // Interests Section
@@ -299,7 +302,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        'Interests',
+                        l10n.interests,
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontWeight: FontWeight.w500,

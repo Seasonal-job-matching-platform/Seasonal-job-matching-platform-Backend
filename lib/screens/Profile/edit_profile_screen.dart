@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/profile_screen_providers/personal_information_notifier.dart';
 import 'package:job_seeker/models/profile_screen_models/personal_information_model.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -22,6 +23,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   List<String> _initialInterests = [];
   List<String> _currentInterests = [];
+  List<String> selectedInterests = [];
   bool _initialized = false;
 
   @override
@@ -121,10 +123,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // Show dialog to add interest
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
+        final l10n = AppLocalizations.of(context)!;
         final controller = TextEditingController();
         return AlertDialog(
-          title: const Text('Add Interest'),
+          title: Text(l10n.addInterest),
           content: TextField(
             controller: controller,
             decoration: const InputDecoration(hintText: 'e.g. Graphic Design'),
@@ -132,20 +135,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.cancel),
             ),
-            TextButton(
+TextButton(
               onPressed: () {
-                if (controller.text.isNotEmpty &&
-                    !_currentInterests.contains(controller.text)) {
+                if (controller.text.trim().isNotEmpty) {
                   setState(() {
-                    _currentInterests.add(controller.text);
+                    selectedInterests.add(controller.text.trim());
                   });
+                  Navigator.pop(dialogContext);
                 }
-                Navigator.pop(context);
               },
-              child: const Text('Add'),
+              child: Text(l10n.add),
             ),
           ],
         );
@@ -155,12 +157,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final personalInfo = ref.watch(personalInformationProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: Text(l10n.editProfile),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -214,17 +217,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    _buildLabel('Full Name'),
+                    _buildLabel(l10n.fullName2),
                     TextFormField(
                       controller: _nameController,
-                      decoration: _inputDecoration('Your name'),
-                      validator: (v) => v!.isEmpty ? 'Name is required' : null,
+                      decoration: _inputDecoration(l10n.enterYourFullName),
+                      validator: (v) => v!.isEmpty ? l10n.nameIsRequired : null,
                     ),
                     const SizedBox(height: 20),
 
-                    _buildLabel('Phone Number'),
+                    _buildLabel(l10n.phoneNumber),
                     IntlPhoneField(
-                      decoration: _inputDecoration('Your number'),
+                      decoration: _inputDecoration(l10n.enterYourNumber),
                       initialValue: _initialNumber,
                       initialCountryCode: _initialCountryCode,
                       onChanged: (phone) {
@@ -243,7 +246,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildLabel('Fields of Interest'),
+                        _buildLabel(l10n.interests),
                         IconButton(
                           onPressed: _addInterest,
                           icon: const Icon(
@@ -291,8 +294,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           foregroundColor: Colors.white,
                           elevation: 0,
                         ),
-                        child: const Text(
-                          'Save Changes',
+                        child: Text(
+                          l10n.save,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

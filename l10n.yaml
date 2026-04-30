@@ -1,4 +1,14 @@
+# Localization configuration for Flutter
 arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
+supported-locales:
+  - en
+  - ar
+# Enable RTL support for Arabic
+r-b-l-support: true
+# Include language code in ARB files
+preferred-supported-locales:
+  - en
+  - ar

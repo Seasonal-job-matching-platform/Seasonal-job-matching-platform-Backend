@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/constants/constants.dart';
+import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
 
 import 'package:job_seeker/screens/layout_screen.dart';
@@ -184,6 +185,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.status == AuthStatus.authenticated &&
           mounted &&
@@ -292,7 +294,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                           return Opacity(opacity: value, child: child);
                         },
                         child: Text(
-                          'Create Account',
+                          l10n.createAccount,
                           style: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -308,7 +310,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                           return Opacity(opacity: value, child: child);
                         },
                         child: Text(
-                          'Fill in your details to get started',
+                          l10n.fillInDetails,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.white.withValues(alpha: 0.9),
                           ),
@@ -335,7 +337,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                       index: 0,
                       child: _SectionHeader(
                         icon: Icons.person_outline,
-                        title: 'Personal Information',
+                        title: l10n.personalInformation,
                       ),
                     ),
                     const SizedBox(height: AppTheme.spaceMd),
@@ -349,18 +351,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                         textInputAction: TextInputAction.next,
                         enabled: !isLoading,
                         decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          hintText: 'Enter your full name',
+                          labelText: l10n.fullName,
+                          hintText: l10n.enterFullName,
                           prefixIcon: const Icon(Icons.person_outlined),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your name';
+                            return l10n.pleaseEnterName;
                           }
                           if (!RegExp(
                             r'^[a-zA-Z\s]+$',
                           ).hasMatch(value.trim())) {
-                            return 'Name can only contain letters';
+                            return l10n.nameOnlyLetters;
                           }
                           return null;
                         },
@@ -383,8 +385,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                                 }
                               },
                         decoration: InputDecoration(
-                          labelText: 'Country',
-                          hintText: 'Select your country',
+                          labelText: l10n.country,
+                          hintText: l10n.selectCountry,
                           prefixIcon: const Icon(Icons.location_on_outlined),
                         ),
                         items: countryList
@@ -412,7 +414,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
 
                       child: IntlPhoneField(
                         decoration: InputDecoration(
-                          labelText: 'Phone Number',
+                          labelText: l10n.phoneNumber,
                           border: OutlineInputBorder(borderSide: BorderSide()),
                           prefixIcon: const Icon(Icons.phone_outlined),
                         ),
@@ -426,7 +428,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                         enabled: !isLoading,
                         validator: (value) {
                           if (value == null || value.number.trim().isEmpty) {
-                            return 'Please enter your phone number';
+                            return l10n.pleaseEnterPhone;
                           }
                           return null;
                         },
@@ -439,7 +441,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                       index: 4,
                       child: _SectionHeader(
                         icon: Icons.security_outlined,
-                        title: 'Account Security',
+                        title: l10n.accountSecurity,
                       ),
                     ),
                     const SizedBox(height: AppTheme.spaceMd),
@@ -453,18 +455,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                         textInputAction: TextInputAction.next,
                         enabled: !isLoading,
                         decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter your email',
+                          labelText: l10n.email,
+                          hintText: l10n.enterYourEmail,
                           prefixIcon: const Icon(Icons.email_outlined),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your email';
+                            return l10n.pleaseEnterEmail;
                           }
                           if (!RegExp(
                             r'^[\w\.-]+@[\w\.-]+\.\w{2,}$',
                           ).hasMatch(value)) {
-                            return 'Please enter a valid email';
+                            return l10n.pleaseEnterValidEmail;
                           }
                           return null;
                         },
@@ -484,10 +486,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                             textInputAction: TextInputAction.next,
                             enabled: !isLoading,
                             decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Create a strong password',
-                              helperText:
-                                  'At least 8 characters with uppercase, lowercase and numbers',
+                              labelText: l10n.password,
+                              hintText: l10n.createStrongPassword,
+                              helperText: l10n.passwordAtLeast8,
                               helperMaxLines: 2,
                               prefixIcon: const Icon(Icons.lock_outlined),
                               suffixIcon: IconButton(
@@ -505,10 +506,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                                return l10n.pleaseEnterPassword;
                               }
                               if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
+                                return l10n.passwordAtLeast6;
                               }
                               return null;
                             },
@@ -537,8 +538,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                         enabled: !isLoading,
                         onFieldSubmitted: (_) => _handleSignup(),
                         decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          hintText: 'Confirm your password',
+                          labelText: l10n.confirmPassword,
+                          hintText: l10n.confirmYourPassword,
                           prefixIcon: const Icon(Icons.lock_outlined),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -556,10 +557,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
+                            return l10n.pleaseConfirmPassword;
                           }
                           if (value != _passwordController.text) {
-                            return 'Passwords do not match';
+                            return l10n.passwordsDoNotMatch;
                           }
                           return null;
                         },
@@ -586,7 +587,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Already have an account? ',
+                            l10n.alreadyHaveAccount,
                             style: theme.textTheme.bodyMedium,
                           ),
                           AnimatedScaleButton(
@@ -595,7 +596,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                               Navigator.of(context).pop();
                             },
                             child: Text(
-                              'Login',
+                              l10n.login,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.primary,
                                 fontWeight: FontWeight.w600,
