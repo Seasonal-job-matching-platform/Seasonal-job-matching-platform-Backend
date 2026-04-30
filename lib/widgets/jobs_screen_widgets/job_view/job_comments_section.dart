@@ -83,8 +83,114 @@ class _JobCommentsSectionState extends ConsumerState<JobCommentsSection> {
 
   @override
   Widget build(BuildContext context) {
+    final commentsAsync = ref.watch(jobCommentsNotifierProvider);
+    final userId = ref.watch(authProvider).userId;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (userId != null)
+          _CommentInput(
+            controller: _commentController,
+            isSubmitting: _isSubmitting,
+            onSubmit: _submitComment,
+          ),
+        const SizedBox(height: 24),
+        commentsAsync.when(
+          data: (comments) {
+            if (comments.isEmpty) return const _EmptyComments();
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: comments.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final comment = comments[index];
+                return _CommentCard(
+                  comment: comment,
+                  isOwner: userId == comment.userId,
+                  isJobPoster: userId == widget.jobPosterId,
+                  onDelete: userId == comment.userId
+                      ? () => _deleteComment(comment.id)
+                      : null,
+                );
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Error: $error')),
+        ),
+      ],
+    );
+  }
+}
+
+class _CommentInput extends StatelessWidget {
+  final TextEditingController controller;
+  final bool isSubmitting;
+  final VoidCallback onSubmit;
+
+  const _CommentInput({
+    required this.controller,
+    required this.isSubmitting,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Ask a question about this job...',
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF4E60FF)),
+              ),
+              contentPadding: const EdgeInsets.all(12),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: isSubmitting ? null : onSubmit,
+          icon: isSubmitting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.send_rounded),
+          style: IconButton.styleFrom(
+            backgroundColor: const Color(0xFF4E60FF),
+            foregroundColor: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyComments extends StatelessWidget {
+  const _EmptyComments();
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
