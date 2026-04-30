@@ -164,5 +164,46 @@
   "pleaseEnterPassword": "Please enter your password",
   "pleaseConfirmPassword": "Please confirm your password",
   "pleaseEnterEmail": "Please enter your email",
-  "pleaseEnterValidEmail": "Please enter a valid email"
+  "pleaseEnterValidEmail": "Please enter a valid email",
+  "applicationSubmittedSuccess": "Application submitted successfully!",
+  "applicationSent": "Application Sent!",
+  "goodLuckEmployer": "Good luck! The employer will contact you soon.",
+  "tellUsWhy": "Tell us why you are a great fit...",
+  "pleaseWriteAtLeast20": "Please write at least 20 characters.",
+  "areYouSureDeleteComment": "Are you sure you want to delete this comment?",
+  "beTheFirstToAsk": "Be the first to ask a question!",
+  "askAQuestion": "Ask a question about this job...",
+  "employerSuffix": "(Employer)",
+  "daysAgo": "{days}d ago",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{hours}h ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesAgo": "{minutes}m ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "justNow": "Just now",
+  "statusPending": "Pending",
+  "statusAccepted": "Accepted",
+  "statusRejected": "Rejected",
+  "statusInterview": "Interview",
+  "statusSubmitted": "Submitted",
+  "statusClosed": "Closed",
+  "statusOpen": "Open"
 }

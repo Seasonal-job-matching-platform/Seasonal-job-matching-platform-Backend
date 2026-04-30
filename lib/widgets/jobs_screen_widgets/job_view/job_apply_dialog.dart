@@ -66,7 +66,7 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
           Navigator.of(context).pop(); // Close sheet
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Application submitted successfully!'),
+              content: Text(l10n.applicationSubmittedSuccess),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -151,13 +151,13 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Application Sent!',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        Text(
+          l10n.applicationSent,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Text(
-          'Good luck! The employer will contact you soon.',
+          l10n.goodLuckEmployer,
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.grey.shade600),
         ),
@@ -187,7 +187,7 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
             maxLines: 5,
             enabled: !isLoading,
             decoration: InputDecoration(
-              hintText: 'Tell us why you are a great fit...',
+              hintText: l10n.tellUsWhy,
               filled: true,
               fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
@@ -205,7 +205,7 @@ class _JobApplySheetState extends ConsumerState<_JobApplySheet> {
             ),
             validator: (v) {
               if (v == null || v.trim().length < 20) {
-                return 'Please write at least 20 characters.';
+                return l10n.pleaseWriteAtLeast20;
               }
               return null;
             },

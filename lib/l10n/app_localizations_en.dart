@@ -506,4 +506,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseEnterValidEmail => 'Please enter a valid email';
+
+  @override
+  String get applicationSubmittedSuccess =>
+      'Application submitted successfully!';
+
+  @override
+  String get applicationSent => 'Application Sent!';
+
+  @override
+  String get goodLuckEmployer =>
+      'Good luck! The employer will contact you soon.';
+
+  @override
+  String get tellUsWhy => 'Tell us why you are a great fit...';
+
+  @override
+  String get pleaseWriteAtLeast20 => 'Please write at least 20 characters.';
+
+  @override
+  String get areYouSureDeleteComment =>
+      'Are you sure you want to delete this comment?';
+
+  @override
+  String get beTheFirstToAsk => 'Be the first to ask a question!';
+
+  @override
+  String get askAQuestion => 'Ask a question about this job...';
+
+  @override
+  String get employerSuffix => '(Employer)';
+
+  @override
+  String daysAgo(int days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String hoursAgo(int hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String minutesAgo(int minutes) {
+    return '${minutes}m ago';
+  }
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusAccepted => 'Accepted';
+
+  @override
+  String get statusRejected => 'Rejected';
+
+  @override
+  String get statusInterview => 'Interview';
+
+  @override
+  String get statusSubmitted => 'Submitted';
+
+  @override
+  String get statusClosed => 'Closed';
+
+  @override
+  String get statusOpen => 'Open';
 }

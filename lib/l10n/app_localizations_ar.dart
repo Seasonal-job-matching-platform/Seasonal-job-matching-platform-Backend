@@ -504,4 +504,71 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pleaseEnterValidEmail => 'الرجاء إدخال بريد إلكتروني صالح';
+
+  @override
+  String get applicationSubmittedSuccess => 'تم تقديم الطلب بنجاح!';
+
+  @override
+  String get applicationSent => 'تم إرسال الطلب!';
+
+  @override
+  String get goodLuckEmployer => 'حظاً موفقاً! سيتصل بك صاحب العمل قريباً.';
+
+  @override
+  String get tellUsWhy => 'أخبرنا لماذا أنت مناسب لهذه الوظيفة...';
+
+  @override
+  String get pleaseWriteAtLeast20 => 'الرجاء كتابة 20 حرفاً على الأقل.';
+
+  @override
+  String get areYouSureDeleteComment =>
+      'هل أنت متأكد أنك تريد حذف هذا التعليق؟';
+
+  @override
+  String get beTheFirstToAsk => 'كن أول من يطرح سؤالاً!';
+
+  @override
+  String get askAQuestion => 'اسأل سؤالاً حول هذه الوظيفة...';
+
+  @override
+  String get employerSuffix => '(صاحب العمل)';
+
+  @override
+  String daysAgo(int days) {
+    return 'منذ $days يوم';
+  }
+
+  @override
+  String hoursAgo(int hours) {
+    return 'منذ $hours ساعة';
+  }
+
+  @override
+  String minutesAgo(int minutes) {
+    return 'منذ $minutes دقيقة';
+  }
+
+  @override
+  String get justNow => 'الآن';
+
+  @override
+  String get statusPending => 'قيد الانتظار';
+
+  @override
+  String get statusAccepted => 'مقبول';
+
+  @override
+  String get statusRejected => 'مرفوض';
+
+  @override
+  String get statusInterview => 'مقابلة';
+
+  @override
+  String get statusSubmitted => 'تم التقديم';
+
+  @override
+  String get statusClosed => 'مغلق';
+
+  @override
+  String get statusOpen => 'مفتوح';
 }

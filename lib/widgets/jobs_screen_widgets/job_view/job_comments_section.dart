@@ -60,7 +60,7 @@ class _JobCommentsSectionState extends ConsumerState<JobCommentsSection> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteComment),
-        content: const Text('Are you sure you want to delete this comment?'),
+        content: Text(l10n.areYouSureDeleteComment),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -138,13 +138,14 @@ class _CommentInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: TextField(
             controller: controller,
             decoration: InputDecoration(
-              hintText: 'Ask a question about this job...',
+              hintText: l10n.askAQuestion,
               filled: true,
               fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
@@ -215,7 +216,7 @@ class _EmptyComments extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Be the first to ask a question!',
+            l10n.beTheFirstToAsk,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),
         ],
@@ -239,6 +240,7 @@ class _CommentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -285,7 +287,7 @@ class _CommentCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _formatDate(comment.createdAt),
+                      _formatDate(comment.createdAt, l10n),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -339,7 +341,7 @@ class _CommentCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${reply.userName} (Employer)',
+                                '${reply.userName} ${l10n.employerSuffix}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12,
@@ -368,20 +370,20 @@ class _CommentCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays > 30) {
       return '${date.day}/${date.month}/${date.year}';
     } else if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
+      return l10n.daysAgo(difference.inDays);
     } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
+      return l10n.hoursAgo(difference.inHours);
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
+      return l10n.minutesAgo(difference.inMinutes);
     } else {
-      return 'Just now';
+      return l10n.justNow;
     }
   }
 }

@@ -190,7 +190,7 @@ class _JobsSearchHeaderState extends ConsumerState<JobsSearchHeader> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: _FilterChip(
-                            label: type.label,
+                            label: type.localizedLabel(context),
                             isSelected: filterState.selectedType == type.apiValue,
                             onTap: () {
                               _focusNode.unfocus(); // Remove search focus when chip is tapped

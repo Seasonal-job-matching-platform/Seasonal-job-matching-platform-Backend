@@ -1087,6 +1087,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a valid email'**
   String get pleaseEnterValidEmail;
+
+  /// No description provided for @applicationSubmittedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Application submitted successfully!'**
+  String get applicationSubmittedSuccess;
+
+  /// No description provided for @applicationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Application Sent!'**
+  String get applicationSent;
+
+  /// No description provided for @goodLuckEmployer.
+  ///
+  /// In en, this message translates to:
+  /// **'Good luck! The employer will contact you soon.'**
+  String get goodLuckEmployer;
+
+  /// No description provided for @tellUsWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us why you are a great fit...'**
+  String get tellUsWhy;
+
+  /// No description provided for @pleaseWriteAtLeast20.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write at least 20 characters.'**
+  String get pleaseWriteAtLeast20;
+
+  /// No description provided for @areYouSureDeleteComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this comment?'**
+  String get areYouSureDeleteComment;
+
+  /// No description provided for @beTheFirstToAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to ask a question!'**
+  String get beTheFirstToAsk;
+
+  /// No description provided for @askAQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question about this job...'**
+  String get askAQuestion;
+
+  /// No description provided for @employerSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'(Employer)'**
+  String get employerSuffix;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d ago'**
+  String daysAgo(int days);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h ago'**
+  String hoursAgo(int hours);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m ago'**
+  String minutesAgo(int minutes);
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get statusAccepted;
+
+  /// No description provided for @statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get statusRejected;
+
+  /// No description provided for @statusInterview.
+  ///
+  /// In en, this message translates to:
+  /// **'Interview'**
+  String get statusInterview;
+
+  /// No description provided for @statusSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get statusSubmitted;
+
+  /// No description provided for @statusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get statusClosed;
+
+  /// No description provided for @statusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get statusOpen;
 }
 
 class _AppLocalizationsDelegate

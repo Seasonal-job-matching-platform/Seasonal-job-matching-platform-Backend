@@ -10,6 +10,7 @@ import 'package:job_seeker/widgets/common/app_card.dart';
 import 'package:job_seeker/widgets/common/shimmer_loading.dart';
 import 'package:job_seeker/widgets/common/staggered_list_item.dart';
 import 'package:job_seeker/widgets/common/status_badge.dart';
+import 'package:job_seeker/utils/translation_utils.dart';
 import 'package:job_seeker/widgets/common/animated_scale_button.dart';
 import 'package:job_seeker/l10n/app_localizations.dart';
 

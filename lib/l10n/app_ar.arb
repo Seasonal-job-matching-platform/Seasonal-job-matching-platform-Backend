@@ -164,5 +164,46 @@
   "pleaseEnterPassword": "الرجاء إدخال كلمة المرور",
   "pleaseConfirmPassword": "الرجاء تأكيد كلمة المرور",
   "pleaseEnterEmail": "الرجاء إدخال بريدك الإلكتروني",
-  "pleaseEnterValidEmail": "الرجاء إدخال بريد إلكتروني صالح"
+  "pleaseEnterValidEmail": "الرجاء إدخال بريد إلكتروني صالح",
+  "applicationSubmittedSuccess": "تم تقديم الطلب بنجاح!",
+  "applicationSent": "تم إرسال الطلب!",
+  "goodLuckEmployer": "حظاً موفقاً! سيتصل بك صاحب العمل قريباً.",
+  "tellUsWhy": "أخبرنا لماذا أنت مناسب لهذه الوظيفة...",
+  "pleaseWriteAtLeast20": "الرجاء كتابة 20 حرفاً على الأقل.",
+  "areYouSureDeleteComment": "هل أنت متأكد أنك تريد حذف هذا التعليق؟",
+  "beTheFirstToAsk": "كن أول من يطرح سؤالاً!",
+  "askAQuestion": "اسأل سؤالاً حول هذه الوظيفة...",
+  "employerSuffix": "(صاحب العمل)",
+  "daysAgo": "منذ {days} يوم",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "منذ {hours} ساعة",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesAgo": "منذ {minutes} دقيقة",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "justNow": "الآن",
+  "statusPending": "قيد الانتظار",
+  "statusAccepted": "مقبول",
+  "statusRejected": "مرفوض",
+  "statusInterview": "مقابلة",
+  "statusSubmitted": "تم التقديم",
+  "statusClosed": "مغلق",
+  "statusOpen": "مفتوح"
 }

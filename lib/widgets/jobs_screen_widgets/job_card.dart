@@ -10,6 +10,7 @@ import 'package:job_seeker/providers/home_screen_providers/favorites_controller.
 import 'package:job_seeker/providers/profile_screen_providers/personal_information_notifier.dart';
 import 'package:job_seeker/widgets/common/app_card.dart';
 import 'package:job_seeker/widgets/common/animated_scale_button.dart';
+import 'package:job_seeker/utils/translation_utils.dart';
 import 'package:job_seeker/widgets/common/status_badge.dart';
 
 import 'package:job_seeker/widgets/common/new_badge.dart';
@@ -258,7 +259,7 @@ class _JobCardState extends ConsumerState<JobCard>
                           ),
                           _InfoChip(
                             icon: Icons.work_outline,
-                            label: widget.job.type,
+                            label: TranslationUtils.translateJobType(widget.job.type, l10n),
                           ),
                           ...widget.job.categories
                               .take(2)
@@ -330,7 +331,7 @@ class _JobCardState extends ConsumerState<JobCard>
                                           ),
                                     ),
                                     Text(
-                                      ' / ${widget.job.salary.toLowerCase().replaceAll('salary', '').trim()}',
+                                      ' / ${TranslationUtils.translateSalaryType(widget.job.salary.toLowerCase().replaceAll('salary', '').trim(), l10n)}',
                                       style: theme.textTheme.labelSmall
                                           ?.copyWith(
                                             color: colorScheme.primary
