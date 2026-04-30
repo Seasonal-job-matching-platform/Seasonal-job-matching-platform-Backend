@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_seeker/constants/constants.dart';
 import 'package:job_seeker/l10n/app_localizations.dart';
 import 'package:job_seeker/providers/auth_provider.dart';
+import 'package:job_seeker/screens/auth/login_screen.dart';
 
 import 'package:job_seeker/screens/layout_screen.dart';
 import 'package:job_seeker/theme/app_theme.dart';
@@ -242,7 +243,43 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                       Row(
                         children: [
                           AnimatedScaleButton(
-                            onPressed: () => Navigator.of(context).pop(),
+                            onPressed: () =>
+                                Navigator.of(context).pushReplacement(
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) => const LoginScreen(),
+                                    transitionsBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                          child,
+                                        ) {
+                                          return SlideTransition(
+                                            position:
+                                                Tween<Offset>(
+                                                  begin: const Offset(
+                                                    -1.0,
+                                                    0.0,
+                                                  ),
+                                                  end: Offset.zero,
+                                                ).animate(
+                                                  CurvedAnimation(
+                                                    parent: animation,
+                                                    curve:
+                                                        Curves.easeInOutCubic,
+                                                  ),
+                                                ),
+                                            child: child,
+                                          );
+                                        },
+                                    transitionDuration: AppTheme.animNormal,
+                                  ),
+                                ),
                             child: Container(
                               padding: const EdgeInsets.all(AppTheme.spaceSm),
                               decoration: BoxDecoration(
@@ -593,7 +630,38 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                           AnimatedScaleButton(
                             onPressed: () {
                               if (isLoading) return;
-                              Navigator.of(context).pop();
+                              Navigator.of(context).pushReplacement(
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                      ) => const LoginScreen(),
+                                  transitionsBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                        child,
+                                      ) {
+                                        return SlideTransition(
+                                          position:
+                                              Tween<Offset>(
+                                                begin: const Offset(-1.0, 0.0),
+                                                end: Offset.zero,
+                                              ).animate(
+                                                CurvedAnimation(
+                                                  parent: animation,
+                                                  curve: Curves.easeInOutCubic,
+                                                ),
+                                              ),
+                                          child: child,
+                                        );
+                                      },
+                                  transitionDuration: AppTheme.animNormal,
+                                ),
+                              );
                             },
                             child: Text(
                               l10n.login,

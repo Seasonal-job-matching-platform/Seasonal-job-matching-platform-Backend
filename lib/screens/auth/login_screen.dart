@@ -353,7 +353,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         ? null
                                         : () {
                                             HapticFeedback.lightImpact();
-                                            Navigator.of(context).push(
+                                            Navigator.of(context).pushReplacement(
                                               PageRouteBuilder(
                                                 pageBuilder:
                                                     (
