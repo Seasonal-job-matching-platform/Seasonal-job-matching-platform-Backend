@@ -23,17 +23,20 @@ class AuthService {
       final response = await _dio.post(SIGNUP, data: request.toJson());
 
       final authResponse = AuthResponseModel.fromJson(response.data);
-
-      // Store user ID from the response
-      await _authStorage.saveUserId(authResponse.user.id.toString());
-
-      // Store token if provided in response
       final token = authResponse.token ?? response.data['token'];
+
+      // Ensure the returned model has the token
+      final finalResponse = (token != null && authResponse.token == null)
+          ? authResponse.copyWith(token: token)
+          : authResponse;
+
+      // Store user ID and token
+      await _authStorage.saveUserId(finalResponse.user.id.toString());
       if (token != null) {
         await _authStorage.saveToken(token);
       }
 
-      return authResponse;
+      return finalResponse;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -44,17 +47,20 @@ class AuthService {
       final response = await _dio.post(LOGIN, data: request.toJson());
 
       final authResponse = AuthResponseModel.fromJson(response.data);
-
-      // Store user ID from the response
-      await _authStorage.saveUserId(authResponse.user.id.toString());
-
-      // Store token if provided in response
       final token = authResponse.token ?? response.data['token'];
+
+      // Ensure the returned model has the token
+      final finalResponse = (token != null && authResponse.token == null)
+          ? authResponse.copyWith(token: token)
+          : authResponse;
+
+      // Store user ID and token
+      await _authStorage.saveUserId(finalResponse.user.id.toString());
       if (token != null) {
         await _authStorage.saveToken(token);
       }
 
-      return authResponse;
+      return finalResponse;
     } on DioException catch (e) {
       throw _handleError(e);
     }

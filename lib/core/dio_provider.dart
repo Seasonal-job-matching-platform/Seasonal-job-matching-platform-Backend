@@ -60,9 +60,9 @@ final dioProvider = Provider<Dio>((ref) {
           return;
         }
 
-        if (error.response?.statusCode == 403) {
+        if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
           print(
-            '[DEBUG] Interceptor: 403 detected - checking if already handled',
+            '[DEBUG] Interceptor: ${error.response?.statusCode} detected - checking if already handled',
           );
 
           // Check if already handled to prevent multiple triggers

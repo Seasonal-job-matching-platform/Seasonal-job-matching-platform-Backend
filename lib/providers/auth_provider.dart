@@ -91,23 +91,28 @@ class AuthNotifier extends Notifier<AuthState> {
       final request = LoginRequestModel(email: email, password: password);
       final response = await _authService.login(request);
 
-      final token = response.token ?? response.user.id.toString();
+      final token = response.token;
       final userId = response.user.id;
+
+      if (token == null) {
+        throw Exception('Authentication successful but no token received.');
+      }
 
       await _storage.saveToken(token);
       await _storage.saveUserId(userId.toString());
+
+      // Update state BEFORE making any subsequent API calls that might need the token
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        token: token,
+        userId: userId,
+      );
 
       await _registerFcmToken(userId);
 
       // Reset dialog manager on successful login
       AuthDialogManager().resetSessionExpired();
       print('[DEBUG] Login successful, dialog manager reset');
-
-      state = AuthState(
-        status: AuthStatus.authenticated,
-        token: token,
-        userId: userId,
-      );
     } catch (e) {
       state = AuthState(
         status: AuthStatus.unauthenticated,
@@ -137,23 +142,30 @@ class AuthNotifier extends Notifier<AuthState> {
 
       final response = await _authService.signup(request);
 
-      final token = response.token ?? response.user.id.toString();
+      final token = response.token;
       final userId = response.user.id;
+
+      // If no token is returned, perform automatic login
+      if (token == null) {
+        print('[DEBUG] Signup successful, performing automatic login...');
+        return await login(email: email, password: password);
+      }
 
       await _storage.saveToken(token);
       await _storage.saveUserId(userId.toString());
+
+      // Update state BEFORE making any subsequent API calls
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        token: token,
+        userId: userId,
+      );
 
       await _registerFcmToken(userId);
 
       // Reset dialog manager on successful signup
       AuthDialogManager().resetSessionExpired();
       print('[DEBUG] Signup successful, dialog manager reset');
-
-      state = AuthState(
-        status: AuthStatus.authenticated,
-        token: token,
-        userId: userId,
-      );
     } catch (e) {
       state = AuthState(
         status: AuthStatus.unauthenticated,
