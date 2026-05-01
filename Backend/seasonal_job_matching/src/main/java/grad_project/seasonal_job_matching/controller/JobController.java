@@ -225,7 +225,7 @@ public class JobController {
             return ResponseEntity.notFound().build();
 
         try {
-            job_service.deleteComment(commentId);
+            job_service.deleteComment(commentId, jobId);
             return ResponseEntity.ok("Comment deleted successfully!");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Comment failed to delete!"));

@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -88,6 +91,7 @@ public class UserService {
                 .collect(Collectors.toList()); // gathers all transformer users back into list
     }
 
+    @Cacheable(value = "recommendedJobs", key = "#userId")
     // parses data from matching engines response to dto format
     public List<JobResponseDTO> getRecommendedJobs(Long userId) {
         try {
@@ -208,6 +212,7 @@ public class UserService {
 
     }
 
+    @Cacheable(value = "profile", key = "#id")
     public Optional<UserResponseDTO> findByID(long id) {
         return userRepository.findById(id)
                 .map(userMapper::maptoreturnUser);
@@ -231,7 +236,7 @@ public class UserService {
 
     }
 
-    public UserResponseDTO createUser(UserCreateDTO dto) {
+    public Map<String, Object> createUser(UserCreateDTO dto) {
         // if email is NOT present, save new user
         if (!userRepository.existsByEmail(dto.getEmail())) {
             User user1 = userMapper.maptoAddUser(dto);
@@ -241,13 +246,28 @@ public class UserService {
 
             // better practice especially since user1 is being edited
             User saveduser = userRepository.save(user1);
-            return userMapper.maptoreturnUser(saveduser);
+
+            String token = jwtService.generateToken(
+                    saveduser.getId(),
+                    saveduser.getEmail(),
+                    saveduser.getNumber(),
+                    saveduser.getName());
+
+            UserResponseDTO userResponseDTO = userMapper.maptoreturnUser(user1);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", userResponseDTO);
+            response.put("message", "Login successful");
+
+            return response;
 
         } else {
             throw new RuntimeException("Cannot create user");
         }
     }
 
+    @Cacheable(value = "favoriteJobs", key = "#userId")
     public List<Long> getFavoriteJobIds(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -257,6 +277,11 @@ public class UserService {
                 .toList();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "recommendedJobs", key = "#id"),
+            @CacheEvict(value = "profile", key = "#id"),
+            @CacheEvict(value = "favoriteJobs", key = "#id")
+    })
     public UserResponseDTO editUser(UserEditDTO dto, long id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
@@ -328,6 +353,7 @@ public class UserService {
         return userMapper.maptoreturnUser(saveduser);
     }
 
+    @CacheEvict(value = "profile", key = "#id")
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

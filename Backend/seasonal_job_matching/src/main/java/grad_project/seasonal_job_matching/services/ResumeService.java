@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,54 +18,58 @@ import grad_project.seasonal_job_matching.dto.responses.ResumeResponseDTO;
 import grad_project.seasonal_job_matching.dto.requests.ResumeCreateDTO;
 import grad_project.seasonal_job_matching.dto.requests.ResumeEditDTO;
 
-
 @Service
 public class ResumeService {
 
-
-    //public final List<Resume> resumes = new ArrayList<>();
+    // public final List<Resume> resumes = new ArrayList<>();
     private final UserRepository userRepository;
     private final ResumeRepository resumeRepository;
 
     @Autowired
     private ResumeMapper resumeMapper;
 
-    public ResumeService(ResumeRepository resumeRepository, UserRepository userRepository){
+    public ResumeService(ResumeRepository resumeRepository, UserRepository userRepository) {
         this.userRepository = userRepository;
         this.resumeRepository = resumeRepository;
     }
 
-    //could be deleted, i dont think we need to get all resumes at any point
+    // could be deleted, i dont think we need to get all resumes at any point
     // public List<ResumeResponseDTO> findAllResumes(){
-    //     return resumeRepository.findAll()
-    //     .stream()
-    //     .map(resumeMapper::maptoreturnResume)
-    //     .collect(Collectors.toList());
+    // return resumeRepository.findAll()
+    // .stream()
+    // .map(resumeMapper::maptoreturnResume)
+    // .collect(Collectors.toList());
     // }
 
-    //FUNCTION ON HOLD UNTIL SESSION/COOKIES/SECURITY is applied
+    @Cacheable(value = "userResume", key = "#userId", unless = "#result.isEmpty()")
     @Transactional(readOnly = true)
     public Optional<ResumeResponseDTO> findResumeByUserId(long userId) {
         User user = userRepository.findByIdWithResume(userId)
-            .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        Resume resume = user.getResume(); 
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        Resume resume = user.getResume();
 
         if (resume == null) {
             throw new RuntimeException("User has no linked resume.");
         }
-        
-        //in job service, we dont write optional.of because findbyid returns optional and so mapper returns optional jobresponsedto
-        //while here, the optional chain is cut of so mapping doesnt return optional so we have to typecast it
-        //probably when adding sessions and cookies, this function will change, or maybe the only thing will change will be in the 
-        //controller layer and instead of taking pathvariable, id will be taken from session and function stays the same
+
+        // in job service, we dont write optional.of because findbyid returns optional
+        // and so mapper returns optional jobresponsedto
+        // while here, the optional chain is cut of so mapping doesnt return optional so
+        // we have to typecast it
+        // probably when adding sessions and cookies, this function will change, or
+        // maybe the only thing will change will be in the
+        // controller layer and instead of taking pathvariable, id will be taken from
+        // session and function stays the same
         return Optional.of(resumeMapper.maptoreturnResume(resume));
     }
 
-
-    //this function takes id from url OF user which isnt the best practice but until i do session security to get user id from session and then take resume from it
+    // this function takes id from url OF user which isnt the best practice but
+    // until i do session security to get user id from session and then take resume
+    // from it
     @Transactional
-    public ResumeResponseDTO createResume(ResumeCreateDTO dto, long userId) { //does it need any validation like unique user email?
-        //get user from id given in url
+    public ResumeResponseDTO createResume(ResumeCreateDTO dto, long userId) { // does it need any validation like unique
+                                                                              // user email?
+        // get user from id given in url
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Resume resume = resumeMapper.maptoAddResume(dto);
 
@@ -86,22 +92,25 @@ public class ResumeService {
 
         Resume savedResume = resumeRepository.save(resume);
         user.setResume(savedResume);
-        userRepository.save(user);//because we updated it
+        userRepository.save(user);// because we updated it
         return resumeMapper.maptoreturnResume(savedResume);
 
     }
 
+    @CacheEvict(value = "userResume", key = "#userId")
     @Transactional
-    public ResumeResponseDTO editResume(ResumeEditDTO dto, long userId){ 
+    public ResumeResponseDTO editResume(ResumeEditDTO dto, long userId) {
         User user = userRepository.findByIdWithResume(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         Resume existingResume = user.getResume();
         if (existingResume == null) {
             throw new RuntimeException("User has no linked resume. Please create a resume first.");
         }
-        // This single line handles certificates, education, experience, and languages if they were not arrays and wouldnt be ignored in mapper
-        // If the DTO field is null (omitted in JSON), the existing value remains unchanged.
-        //resumeMapper.maptoEditResume(dto,existingResume);
+        // This single line handles certificates, education, experience, and languages
+        // if they were not arrays and wouldnt be ignored in mapper
+        // If the DTO field is null (omitted in JSON), the existing value remains
+        // unchanged.
+        // resumeMapper.maptoEditResume(dto,existingResume);
 
         // Initialize skills list if null
         if (existingResume.getEducation() == null) {
@@ -187,9 +196,11 @@ public class ResumeService {
 
     }
 
+    @CacheEvict(value = "userResume", key = "#userId")
     @Transactional
-    public void deleteResume(Long userId){
-        User user = userRepository.findByIdWithResume(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+    public void deleteResume(Long userId) {
+        User user = userRepository.findByIdWithResume(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         Resume resumeToDelete = user.getResume();
         if (resumeToDelete != null) {
             user.setResume(null);
