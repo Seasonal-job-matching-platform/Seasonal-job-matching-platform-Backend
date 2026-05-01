@@ -7,6 +7,8 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
+import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 
 import java.time.Duration;
 
@@ -35,5 +37,18 @@ public class RedisConfig {
                                 // Any cache named "recommendedJobs" will use the 4 hour rule
                                 .withCacheConfiguration("recommendedJobs", shortTtlConfig)
                                 .build();
+        }
+
+        @Bean
+        public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer() {
+                return builder -> {
+                // Check if we are running in Heroku with a secure REDIS URL
+                String redisUrl = System.getenv("SPRING_DATA_REDIS_URL");
+                
+                if (redisUrl != null && redisUrl.startsWith("rediss://")) {
+                        // Force SSL but completely disable the strict certificate check!
+                        builder.useSsl().disablePeerVerification();
+                }
+                };
         }
 }
