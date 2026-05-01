@@ -26,14 +26,14 @@ public class RedisConfig {
                                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                                                 .fromSerializer(jsonSerializer));
 
-                // Delete after 15 minutes, currently not used though
+                // Delete after 4 hours
                 RedisCacheConfiguration shortTtlConfig = RedisCacheConfiguration.defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(15));
+                                .entryTtl(Duration.ofHours(6));
 
                 return RedisCacheManager.builder(connectionFactory)
                                 .cacheDefaults(defaultConfig)
-                                // Any cache named "globalJobFeed" will use the 15-minute rule
-                                .withCacheConfiguration("globalJobFeed", shortTtlConfig)
+                                // Any cache named "recommendedJobs" will use the 4 hour rule
+                                .withCacheConfiguration("recommendedJobs", shortTtlConfig)
                                 .build();
         }
 }

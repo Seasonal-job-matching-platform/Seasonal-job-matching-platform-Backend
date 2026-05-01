@@ -246,7 +246,7 @@ public class UserService {
 
     }
 
-    public UserResponseDTO createUser(UserCreateDTO dto) {
+    public Map<String, Object> createUser(UserCreateDTO dto) {
         // if email is NOT present, save new user
         if (!userRepository.existsByEmail(dto.getEmail())) {
             User user1 = userMapper.maptoAddUser(dto);
@@ -256,7 +256,21 @@ public class UserService {
 
             // better practice especially since user1 is being edited
             User saveduser = userRepository.save(user1);
-            return userMapper.maptoreturnUser(saveduser);
+
+            String token = jwtService.generateToken(
+                    saveduser.getId(),
+                    saveduser.getEmail(),
+                    saveduser.getNumber(),
+                    saveduser.getName());
+
+            UserResponseDTO userResponseDTO = userMapper.maptoreturnUser(user1);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", userResponseDTO);
+            response.put("message", "Login successful");
+
+            return response;
 
         } else {
             throw new RuntimeException("Cannot create user");
