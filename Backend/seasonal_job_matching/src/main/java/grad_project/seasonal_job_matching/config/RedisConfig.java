@@ -26,9 +26,6 @@ public class RedisConfig {
         @Bean
         public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 
-                // so data saved on redis in readable data instead of Java bytes
-                GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
-
                 // 1. Create a Custom Super-Mapper
                 ObjectMapper objectMapper = new ObjectMapper();
 
@@ -41,6 +38,9 @@ public class RedisConfig {
                                 objectMapper.getPolymorphicTypeValidator(),
                                 ObjectMapper.DefaultTyping.NON_FINAL,
                                 JsonTypeInfo.As.PROPERTY);
+
+                // so data saved on redis in readable data instead of Java bytes, using our custom mapper
+                GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
                 // Default: Keep data 7 days (Requires manual @CacheEvict)
                 RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
