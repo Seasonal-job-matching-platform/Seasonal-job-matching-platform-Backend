@@ -125,7 +125,7 @@ public class JobService {
 
     }
 
-    @Cacheable(value = "jobDetails", key = "#id", unless = "#result.isEmpty()")
+    @Cacheable(value = "jobDetails", key = "#id", unless = "#result == null")
     public Optional<JobResponseDTO> findByID(long id) {
         return jobRepository.findById(id)
                 .map(jobMapper::maptoreturnJob);

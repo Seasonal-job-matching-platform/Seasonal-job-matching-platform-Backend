@@ -41,7 +41,7 @@ public class ResumeService {
     // .collect(Collectors.toList());
     // }
 
-    @Cacheable(value = "userResume", key = "#userId", unless = "#result.isEmpty()")
+    @Cacheable(value = "userResume", key = "#userId", unless = "#result == null")
     @Transactional(readOnly = true)
     public Optional<ResumeResponseDTO> findResumeByUserId(long userId) {
         User user = userRepository.findByIdWithResume(userId)
