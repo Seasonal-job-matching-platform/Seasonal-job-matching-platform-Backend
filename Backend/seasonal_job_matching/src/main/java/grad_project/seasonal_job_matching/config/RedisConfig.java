@@ -15,6 +15,11 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import java.net.URI;
 import java.time.Duration;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @Configuration
 public class RedisConfig {
 
@@ -23,6 +28,19 @@ public class RedisConfig {
 
                 // so data saved on redis in readable data instead of Java bytes
                 GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
+
+                // 1. Create a Custom Super-Mapper
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                // Teach Jackson how to handle LocalDateTime
+                objectMapper.registerModule(new JavaTimeModule());
+                objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // Saves dates as readable text
+
+                // Teach Jackson to embed Type IDs so it doesn't forget what's inside a List
+                objectMapper.activateDefaultTyping(
+                                objectMapper.getPolymorphicTypeValidator(),
+                                ObjectMapper.DefaultTyping.NON_FINAL,
+                                JsonTypeInfo.As.PROPERTY);
 
                 // Default: Keep data 7 days (Requires manual @CacheEvict)
                 RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
@@ -40,6 +58,7 @@ public class RedisConfig {
                                 // Any cache named "recommendedJobs" will use the 4 hour rule
                                 .withCacheConfiguration("recommendedJobs", shortTtlConfig)
                                 .build();
+
         }
 
         @Bean
@@ -73,4 +92,5 @@ public class RedisConfig {
 
                 return new LettuceConnectionFactory(config, builder.build());
         }
+
 }
