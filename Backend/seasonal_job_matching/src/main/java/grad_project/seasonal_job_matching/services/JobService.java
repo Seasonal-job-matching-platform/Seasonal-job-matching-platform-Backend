@@ -304,7 +304,9 @@ public class JobService {
     }
 
     @CacheEvict(value = "jobDetails", key = "#id")
+    @Transactional
     public void deleteJob(Long id) {
+        jobRepository.deleteFromUserFavoriteJobsByJobId(id);
         jobRepository.deleteById(id);
     }
 
