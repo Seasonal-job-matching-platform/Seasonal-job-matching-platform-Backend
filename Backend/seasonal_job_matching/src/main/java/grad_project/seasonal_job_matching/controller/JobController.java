@@ -23,6 +23,7 @@ import grad_project.seasonal_job_matching.dto.requests.JobCreateDTO;
 import grad_project.seasonal_job_matching.dto.requests.JobEditDTO;
 import grad_project.seasonal_job_matching.dto.responses.JobCommentResponseDTO;
 import grad_project.seasonal_job_matching.dto.responses.JobResponseDTO;
+import grad_project.seasonal_job_matching.dto.responses.RecommendedApplicantResponseDTO;
 import grad_project.seasonal_job_matching.model.enums.JobType;
 import grad_project.seasonal_job_matching.model.enums.Salary;
 import grad_project.seasonal_job_matching.model.enums.WorkArrangement;
@@ -98,6 +99,26 @@ public class JobController {
             return ResponseEntity.ok(job.get());
         }
 
+    }
+
+    @GetMapping("/{jobId}/recommended-applicants")
+    public ResponseEntity<?> getRecommendedApplicants(@PathVariable long jobId, HttpServletRequest request) {
+        Long currentUserId = currentUserService.getCurrentUserId(request);
+        if (currentUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<JobResponseDTO> job = job_service.findByID(jobId);
+        if (job.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Job not found!"));
+        }
+
+        if (currentUserId != job.get().getJobposterId()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<RecommendedApplicantResponseDTO> recommendedApplicants = job_service.getRecommendedApplicants(jobId);
+        return ResponseEntity.ok(recommendedApplicants);
     }
 
     @PostMapping("")

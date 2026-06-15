@@ -35,9 +35,24 @@ import grad_project.seasonal_job_matching.repository.JobCommentRepository;
 import grad_project.seasonal_job_matching.repository.JobRepository;
 import grad_project.seasonal_job_matching.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import grad_project.seasonal_job_matching.dto.responses.RecommendedApplicantResponseDTO;
+import grad_project.seasonal_job_matching.dto.responses.ExternalRecommendationDTO;
 
 @Service
 public class JobService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JobService.class);
+
+    @Value("${external.api.applicant-recommender.url:https://application-recommender-etcnc3gsducqc4hz.switzerlandnorth-01.azurewebsites.net}")
+    private String applicantRecommenderUrl;
 
     public final List<Job> users = new ArrayList<>();
     private final JobRepository jobRepository;
@@ -45,14 +60,16 @@ public class JobService {
     private final JobCommentRepository commentRepository;
     private CommentMapper commentMapper;
     private JobMapper jobMapper;
+    private final RestTemplate restTemplate;
 
     public JobService(JobRepository jobRepository, UserRepository userRepository, JobMapper jobMapper,
-            JobCommentRepository commentRepository, CommentMapper commentMapper) {
+            JobCommentRepository commentRepository, CommentMapper commentMapper, RestTemplate restTemplate) {
         this.jobRepository = jobRepository;
         this.userRepository = userRepository;
         this.jobMapper = jobMapper;
         this.commentRepository = commentRepository;
         this.commentMapper = commentMapper;
+        this.restTemplate = restTemplate;
     }
 
     // public List<JobResponseDTO> findAllJobs(){
@@ -381,5 +398,64 @@ public class JobService {
 
     public Optional<JobCommentResponseDTO> getComment(Long commentId) {
         return commentRepository.findById(commentId).map(commentMapper::mapToReturnComment);
+    }
+
+    public List<RecommendedApplicantResponseDTO> getRecommendedApplicants(long jobId) {
+        String url = applicantRecommenderUrl + "/recommend/applicants/" + jobId;
+        logger.info("Calling external applicant recommender API: {}", url);
+
+        try {
+            ExternalRecommendationDTO[] response = restTemplate.getForObject(url, ExternalRecommendationDTO[].class);
+
+            if (response == null || response.length == 0) {
+                logger.warn("Received empty or null response from external applicant recommender API");
+                return new ArrayList<>();
+            }
+
+            List<RecommendedApplicantResponseDTO> result = new ArrayList<>();
+            for (ExternalRecommendationDTO extRec : response) {
+                if (extRec.getUserId() == null) continue;
+
+                RecommendedApplicantResponseDTO enriched = new RecommendedApplicantResponseDTO();
+                enriched.setUserId(extRec.getUserId());
+                enriched.setSkills(extRec.getSkills());
+                enriched.setExperience(extRec.getExperience());
+                enriched.setDescribeYourself(extRec.getDescribeYourself());
+                enriched.setLanguages(extRec.getLanguages());
+                enriched.setFieldsOfInterest(extRec.getFieldsOfInterest());
+                enriched.setEducation(extRec.getEducation());
+
+                // Fetch candidate's name from database
+                Optional<User> userOpt = userRepository.findById(extRec.getUserId());
+                if (userOpt.isPresent()) {
+                    enriched.setName(userOpt.get().getName());
+                } else {
+                    enriched.setName("Unknown Candidate");
+                }
+
+                result.add(enriched);
+            }
+
+            logger.info("Successfully fetched and enriched {} recommended applicants for jobId {}", result.size(), jobId);
+            return result;
+
+        } catch (HttpClientErrorException e) {
+            logger.error("Client error calling external applicant recommender API: Status={}, Body={}",
+                    e.getStatusCode(), e.getResponseBodyAsString());
+            return new ArrayList<>();
+        } catch (HttpServerErrorException e) {
+            logger.error("Server error calling external applicant recommender API: Status={}, Body={}",
+                    e.getStatusCode(), e.getResponseBodyAsString());
+            return new ArrayList<>();
+        } catch (ResourceAccessException e) {
+            logger.error("Connection error calling external applicant recommender API: {}", e.getMessage());
+            return new ArrayList<>();
+        } catch (RestClientException e) {
+            logger.error("Unexpected error calling external applicant recommender API: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        } catch (Exception e) {
+            logger.error("Error occurred while getting recommended applicants: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
     }
 }

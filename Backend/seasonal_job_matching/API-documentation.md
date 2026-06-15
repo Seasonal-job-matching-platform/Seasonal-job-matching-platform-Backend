@@ -268,6 +268,52 @@ Note: For array fields (requirements, categories, benefits), use the add/remove 
 - Same pattern applies to `categoriesToAdd`/`categoriesToRemove` and `benefitsToAdd`/`benefitsToRemove`
 
 
+### GET /api/jobs/{jobId}/recommended-applicants
+- Description: Retrieve the most suitable candidates that applied to the specified job (Employer view). Only the job owner (poster) can call this API.
+- Path parameters:
+  - `jobId` (long) - job database id
+- Headers:
+  - `Authorization: Bearer <token>`
+- Responses:
+  - 200 OK: JSON array of recommended applicant DTOs containing candidate details
+  - 401 Unauthorized: if user is not authenticated
+  - 403 Forbidden: if user is not the owner (poster) of the job
+  - 404 Not Found: if job with given id does not exist
+
+Example output:
+```json
+[
+  {
+    "userId": 92,
+    "name": "John Doe",
+    "skills": [
+      "Puppet Construction",
+      "Storytelling",
+      "Improv"
+    ],
+    "experience": [
+      "Puppeteer",
+      "Children's Workshop Lead"
+    ],
+    "describeYourself": "It was always my dream to become an actor and I know I can steal the spotlight with the right opportunities. I am looking forward to joining your team.",
+    "languages": [
+      "English"
+    ],
+    "fieldsOfInterest": [
+      "Human Resources",
+      "Recruitment",
+      "Seasonal Hiring",
+      "Employee Wellness"
+    ],
+    "education": [
+      "Drama Education Program"
+    ]
+  }
+]
+```
+
+---
+
 ### DELETE /api/jobs/{id}
 - Description: Delete a job by ID.
 - Responses:
