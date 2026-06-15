@@ -22,7 +22,7 @@ public class HttpClientConfig {
     public ClientHttpRequestFactory clientHttpRequestFactory(){
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory(); //acts as a configuration holder and creates a wrapper for HttpURLConnection
         factory.setConnectTimeout(10000); //10 seconds to timeout while connecting to server
-        factory.setReadTimeout(20000); //20 seconds or will timeout while reading data
+        factory.setReadTimeout(25000); //25 seconds or will timeout while reading data
         return factory;
     }
 }
