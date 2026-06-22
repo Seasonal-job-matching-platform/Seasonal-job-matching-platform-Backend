@@ -143,7 +143,16 @@ public class ExchangeRateService {
             }
 
             @SuppressWarnings("unchecked")
-            Map<String, Double> rates = (Map<String, Double>) body.get("conversion_rates");
+            Map<String, Object> rawRates = (Map<String, Object>) body.get("conversion_rates");
+            Map<String, Double> rates = new java.util.HashMap<>();
+            if (rawRates != null) {
+                for (Map.Entry<String, Object> entry : rawRates.entrySet()) {
+                    Object val = entry.getValue();
+                    if (val instanceof Number) {
+                        rates.put(entry.getKey(), ((Number) val).doubleValue());
+                    }
+                }
+            }
 
             logger.info("Successfully fetched exchange rates. {} currencies available.", rates.size());
             return rates;
