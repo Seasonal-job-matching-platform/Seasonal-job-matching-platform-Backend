@@ -18,6 +18,10 @@ import grad_project.seasonal_job_matching.services.Notifications.NotificationFac
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +57,7 @@ public class ApplicationService {
      */
     @Caching(evict = {
             @CacheEvict(value = "userApplications", key = "#userId"),
-            @CacheEvict(value = "applicationsForEmployer", key = "#jobId")
+            @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     })
     @Transactional
     public ApplicationResponseDTO createApplication(ApplicationCreateDTO dto, long userId, long jobId) {
@@ -150,21 +154,20 @@ public class ApplicationService {
     }
 
     /**
-     * Gets all applications that have been submitted for a specific job.
+     * Gets all applications that have been submitted for a specific job (paginated).
      */
-    @Cacheable(value = "applicationsForEmployer", key = "#jobId")
+    @Cacheable(value = "applicationsForEmployer", key = "#jobId + '_' + #page")
     @Transactional(readOnly = true)
-    public List<ApplicationWebResponseDTO> getApplicationsForJob(long jobId) {
-        Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found with ID: " + jobId));
+    public Page<ApplicationWebResponseDTO> getApplicationsForJob(long jobId, int page) {
+        if (!jobRepository.existsById(jobId)) {
+            throw new RuntimeException("Job not found with ID: " + jobId);
+        }
 
-        // Use the 'listofJobApplications' list from the Job entity
-        List<Application> applications = job.getListOfJobApplications();
+        Pageable pageable = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // Map the list of entities to a list of DTOs
-        return applications.stream()
-                .map(application -> applicationMapper.mapToReturnWebApplication(application))
-                .collect(Collectors.toList());
+        Page<Application> applicationPage = applicationRepository.findByJobId(jobId, pageable);
+
+        return applicationPage.map(application -> applicationMapper.mapToReturnWebApplication(application));
     }
 
     /**
@@ -173,8 +176,8 @@ public class ApplicationService {
      * on the next database read because the record is gone.
      */
     @Caching(evict = {
-            @CacheEvict(value = "userApplications", key = "#userId"), // CRASH: #userId is not a parameter!
-            @CacheEvict(value = "applicationsForEmployer", key = "#jobId")
+            @CacheEvict(value = "userApplications", key = "#userId"),
+            @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     })
     @Transactional
     public void deleteApplication(long applicationId, long userId, long jobId) {
@@ -190,7 +193,7 @@ public class ApplicationService {
 
     @Caching(evict = {
             @CacheEvict(value = "userApplications", key = "#result.userId"),
-            @CacheEvict(value = "applicationsForEmployer", key = "#result.job.id")
+            @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     })
     @Transactional
     public ApplicationResponseDTO updateApplicationStatus(long applicationId, long requestingUserId,

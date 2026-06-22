@@ -124,9 +124,13 @@ public class ApplicationController {
     /**
      * Gets all applications submitted for a specific job (Employer view).
      * Only the job owner (poster) can see applications for their job.
+     * Supports pagination via the 'page' query parameter (0-indexed, default 0).
      */
     @GetMapping("/job/{jobId}")
-    public ResponseEntity<?> getApplicationsForJob(@PathVariable long jobId, HttpServletRequest request) {
+    public ResponseEntity<?> getApplicationsForJob(
+            @PathVariable long jobId,
+            @RequestParam(defaultValue = "0") int page,
+            HttpServletRequest request) {
         Long currentUserId = currentUserService.getCurrentUserId(request);
         if (currentUserId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -134,11 +138,7 @@ public class ApplicationController {
         if (currentUserId != jobOwnerId)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
-            List<ApplicationWebResponseDTO> applications = applicationService.getApplicationsForJob(jobId);
-            if (applications.isEmpty()) {
-                return ResponseEntity.ok(applications);
-            }
-            return ResponseEntity.ok(applications);
+            return ResponseEntity.ok(applicationService.getApplicationsForJob(jobId, page));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
