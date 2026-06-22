@@ -49,14 +49,23 @@ public class RedisConfig {
                                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                                                 .fromSerializer(jsonSerializer));
 
-                // Delete after 4 hours
+                // Delete after 6 hours
                 RedisCacheConfiguration shortTtlConfig = RedisCacheConfiguration.defaultCacheConfig()
                                 .entryTtl(Duration.ofHours(6));
+
+                // Exchange rates: 24 hour TTL (API updates once per day)
+                RedisCacheConfiguration exchangeRateTtlConfig = RedisCacheConfiguration.defaultCacheConfig()
+                                .entryTtl(Duration.ofHours(24))
+                                .disableCachingNullValues()
+                                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                                                .fromSerializer(jsonSerializer));
 
                 return RedisCacheManager.builder(connectionFactory)
                                 .cacheDefaults(defaultConfig)
                                 // Any cache named "recommendedJobs" will use the 4 hour rule
                                 .withCacheConfiguration("recommendedJobs", shortTtlConfig)
+                                // Exchange rates cached for 24 hours
+                                .withCacheConfiguration("exchangeRates", exchangeRateTtlConfig)
                                 .build();
 
         }

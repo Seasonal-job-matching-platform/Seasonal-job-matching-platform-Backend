@@ -2,6 +2,8 @@ package grad_project.seasonal_job_matching.services;
 
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,22 +20,41 @@ import jakarta.transaction.Transactional;
 @Service
 public class PaymentService {
 
+        private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+
+        // Base price: 50 EGP in piasters (smallest unit)
+        private static final long BASE_AMOUNT_PIASTERS = 5000L;
+        private static final String BASE_CURRENCY = "EGP";
+
         private final UserRepository userRepository;
         private final PaymentTransactionRepository transactionRepository;
+        private final ExchangeRateService exchangeRateService;
 
-        public PaymentService(@Value("${stripe.api.key}") String stripeApiKey, UserRepository userRepository,
-                        PaymentTransactionRepository transactionRepository) {
+        public PaymentService(@Value("${stripe.api.key}") String stripeApiKey,
+                        UserRepository userRepository,
+                        PaymentTransactionRepository transactionRepository,
+                        ExchangeRateService exchangeRateService) {
                 Stripe.apiKey = stripeApiKey;
                 this.transactionRepository = transactionRepository;
                 this.userRepository = userRepository;
+                this.exchangeRateService = exchangeRateService;
         }
 
         @Transactional
-        public String createJobPackageSession(Long userId) throws Exception {
+        public String createJobPackageSession(Long userId, String currency) throws Exception {
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-                long amountInPiasters = 5000L; // 50 EGP
+                // Convert the base price (50 EGP) to the employer's chosen currency
+                String targetCurrency = currency.toUpperCase();
+                long convertedAmount = exchangeRateService.convertAmount(
+                                BASE_AMOUNT_PIASTERS, BASE_CURRENCY, targetCurrency);
+
+                logger.info("Payment: Converting {} {} ({} piasters) -> {} {} (smallest unit) for user {}",
+                                BASE_AMOUNT_PIASTERS / 100.0, BASE_CURRENCY,
+                                BASE_AMOUNT_PIASTERS,
+                                convertedAmount / 100.0, targetCurrency,
+                                userId);
 
                 // 1. Ask Stripe to create the checkout page
                 SessionCreateParams params = SessionCreateParams.builder()
@@ -44,8 +65,8 @@ public class PaymentService {
                                 .addLineItem(SessionCreateParams.LineItem.builder()
                                                 .setQuantity(1L)
                                                 .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-                                                                .setCurrency("egp")
-                                                                .setUnitAmount(amountInPiasters)
+                                                                .setCurrency(targetCurrency.toLowerCase())
+                                                                .setUnitAmount(convertedAmount)
                                                                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData
                                                                                 .builder()
                                                                                 .setName("5 Job Posting Credits")
@@ -60,7 +81,8 @@ public class PaymentService {
                 PaymentTransaction transaction = new PaymentTransaction();
                 transaction.setUser(user);
                 transaction.setPaymentSessionId(session.getId());
-                transaction.setAmount(amountInPiasters);
+                transaction.setAmount(convertedAmount);
+                transaction.setCurrency(targetCurrency);
                 transaction.setStatus("PENDING");
                 transaction.setCreatedAt(LocalDateTime.now());
 

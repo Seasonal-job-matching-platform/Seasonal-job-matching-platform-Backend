@@ -244,6 +244,9 @@ public class UserService {
             // encrypt password
             user1.setPassword(passwordEncoder.encode(dto.getPassword()));
 
+            // Initialize new accounts with 2 free job posting credits
+            user1.setJobPostingCredits(2);
+
             // better practice especially since user1 is being edited
             User saveduser = userRepository.save(user1);
 

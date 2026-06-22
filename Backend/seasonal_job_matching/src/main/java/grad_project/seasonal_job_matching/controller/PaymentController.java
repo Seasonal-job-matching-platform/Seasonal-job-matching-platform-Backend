@@ -23,9 +23,11 @@ public class PaymentController {
     }
 
     @PostMapping("/create-checkout-session")
-    public ResponseEntity<?> createCheckoutSession(@RequestParam Long userId) {
+    public ResponseEntity<?> createCheckoutSession(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "EGP") String currency) {
         try {
-            String checkoutUrl = paymentService.createJobPackageSession(userId);
+            String checkoutUrl = paymentService.createJobPackageSession(userId, currency);
             return ResponseEntity.ok(Map.of("checkoutUrl", checkoutUrl));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
