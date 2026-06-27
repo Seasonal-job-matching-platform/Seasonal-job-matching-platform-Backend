@@ -270,7 +270,7 @@ public class UserService {
         }
     }
 
-    @Cacheable(value = "favoriteJobs", key = "#userId")
+    @Cacheable(value = "favoriteJobs", key = "#userId", unless = "#result.isEmpty()")
     public List<Long> getFavoriteJobIds(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

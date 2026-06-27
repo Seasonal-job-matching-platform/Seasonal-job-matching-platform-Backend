@@ -55,10 +55,7 @@ public class ApplicationService {
      * Creates a new application.
      * This method links the application to both the User and the Job.
      */
-    @Caching(evict = {
-            @CacheEvict(value = "userApplications", key = "#userId"),
-            @CacheEvict(value = "applicationsForEmployer", allEntries = true)
-    })
+    @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     @Transactional
     public ApplicationResponseDTO createApplication(ApplicationCreateDTO dto, long userId, long jobId) {
 
@@ -91,7 +88,7 @@ public class ApplicationService {
     /**
      * Gets all applications that a specific user has submitted.
      */
-    @Cacheable(value = "userApplications", key = "#userId")
+    //@Cacheable(value = "userApplications", key = "#userId", unless = "#result.isEmpty()")
     @Transactional(readOnly = true)
     public List<ApplicationResponseDTO> getApplicationsForUser(long userId) {
         User user = userRepository.findById(userId)
@@ -175,10 +172,7 @@ public class ApplicationService {
      * This will automatically remove it from the User's and Job's lists
      * on the next database read because the record is gone.
      */
-    @Caching(evict = {
-            @CacheEvict(value = "userApplications", key = "#userId"),
-            @CacheEvict(value = "applicationsForEmployer", allEntries = true)
-    })
+    @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     @Transactional
     public void deleteApplication(long applicationId, long userId, long jobId) {
         if (!applicationRepository.existsById(applicationId)) {
@@ -191,10 +185,7 @@ public class ApplicationService {
         applicationRepository.deleteById(applicationId);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "userApplications", key = "#result.userId"),
-            @CacheEvict(value = "applicationsForEmployer", allEntries = true)
-    })
+    @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     @Transactional
     public ApplicationResponseDTO updateApplicationStatus(long applicationId, long requestingUserId,
             ApplicationStatusUpdateDTO dto) {
