@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import com.stripe.Stripe;
@@ -29,15 +30,18 @@ public class PaymentService {
         private final UserRepository userRepository;
         private final PaymentTransactionRepository transactionRepository;
         private final ExchangeRateService exchangeRateService;
+        private final CacheManager cacheManager;
 
         public PaymentService(@Value("${stripe.api.key}") String stripeApiKey,
                         UserRepository userRepository,
                         PaymentTransactionRepository transactionRepository,
-                        ExchangeRateService exchangeRateService) {
+                        ExchangeRateService exchangeRateService,
+                        CacheManager cacheManager) {
                 Stripe.apiKey = stripeApiKey;
                 this.transactionRepository = transactionRepository;
                 this.userRepository = userRepository;
                 this.exchangeRateService = exchangeRateService;
+                this.cacheManager = cacheManager;
         }
 
         @Transactional
@@ -117,6 +121,11 @@ public class PaymentService {
 
                 user.setJobPostingCredits(user.getJobPostingCredits() + 5);
                 userRepository.save(user);
+
+                // Evict user profile from Redis cache so frontend sees updated credits immediately
+                if (cacheManager != null && cacheManager.getCache("profile") != null) {
+                        cacheManager.getCache("profile").evict(user.getId());
+                }
 
                 System.out.println("Successfully added 5 credits to User ID: " + user.getId());
         }
