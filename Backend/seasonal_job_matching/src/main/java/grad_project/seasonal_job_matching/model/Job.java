@@ -98,6 +98,9 @@ public class Job {
     @Enumerated(EnumType.STRING)
     private WorkArrangement workArrangement;
 
+    @Column(nullable = false)
+    private String currency = "EGP";
+
     // Add to job table
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL) // job has many applications
     @JsonIgnoreProperties("job")

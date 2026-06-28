@@ -23,6 +23,7 @@ public class JobEditDTO {
     private Salary salary; 
     @PositiveOrZero
     private float amount;
+    private String currency;
     private Integer duration;
     private JobStatus status;
     private int numOfPositions;

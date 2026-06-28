@@ -32,6 +32,7 @@ public class JobCreateDTO {
     private Salary salary;
     @PositiveOrZero
     private float amount;
+    private String currency = "EGP";
     private Integer duration;
     private JobStatus status;
     private int numOfPositions;

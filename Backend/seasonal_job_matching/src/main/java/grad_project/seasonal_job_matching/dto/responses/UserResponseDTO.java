@@ -25,6 +25,8 @@ public class UserResponseDTO {
 
     private Integer jobPostingCredits;
 
+    private String currency;
+
     // private ResumeResponseDTO resume; //maybe just the id instead of everything
 
     // private List<JobResponseDTO> ownjobList;//probably add JSONignoreproperties

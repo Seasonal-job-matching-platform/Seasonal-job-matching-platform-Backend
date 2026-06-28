@@ -29,4 +29,6 @@ public class UserEditDTO {
 
     private Boolean wantsEmails;
 
+    private String currency;
+
 }

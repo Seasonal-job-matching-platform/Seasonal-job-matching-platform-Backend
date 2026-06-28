@@ -27,6 +27,8 @@ public class UserCreateDTO {
     @Pattern(regexp = ".*[0-9].*", message = "Password must contain at least one number")
     private String password;
 
+    private String currency = "EGP";
+
     //private List<String> fieldsOfInterest;
 
 }

@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import grad_project.seasonal_job_matching.dto.responses.RecommendedApplicantResponseDTO;
 import grad_project.seasonal_job_matching.dto.responses.ExternalRecommendationDTO;
 
+
 @Service
 public class JobService {
 
@@ -61,15 +62,18 @@ public class JobService {
     private CommentMapper commentMapper;
     private JobMapper jobMapper;
     private final RestTemplate restTemplate;
+    private final ExchangeRateService exchangeRateService;
 
     public JobService(JobRepository jobRepository, UserRepository userRepository, JobMapper jobMapper,
-            JobCommentRepository commentRepository, CommentMapper commentMapper, RestTemplate restTemplate) {
+            JobCommentRepository commentRepository, CommentMapper commentMapper, RestTemplate restTemplate,
+            ExchangeRateService exchangeRateService) {
         this.jobRepository = jobRepository;
         this.userRepository = userRepository;
         this.jobMapper = jobMapper;
         this.commentRepository = commentRepository;
         this.commentMapper = commentMapper;
         this.restTemplate = restTemplate;
+        this.exchangeRateService = exchangeRateService;
     }
 
     // public List<JobResponseDTO> findAllJobs(){
@@ -78,22 +82,63 @@ public class JobService {
     // .map(jobMapper::maptoreturnJob)
     // .collect(Collectors.toList());
     // }
+    
+    //if user is unauthenticated
+    public JobResponseDTO convertJobCurrency(Job job) {
+        return convertJobCurrency(job, (Long) null);
+    }
 
+    //if user is authenticated, get his currency and convert the job amount to his currency
+    public JobResponseDTO convertJobCurrency(Job job, Long currentUserId) {
+        if (job == null) return null;
+        JobResponseDTO dto = jobMapper.maptoreturnJob(job);
+        
+        String targetCurrency = "EGP";
+        if (currentUserId != null) {
+            try {
+                User user = userRepository.findById(currentUserId).orElse(null);
+                if (user != null && user.getCurrency() != null) {
+                    targetCurrency = user.getCurrency();
+                }
+            } catch (Exception e) {
+                logger.warn("Could not retrieve user context for currency conversion: {}", e.getMessage());
+            }
+        }
+        
+        String sourceCurrency = job.getCurrency() != null ? job.getCurrency() : "EGP";
+        float convertedAmount = exchangeRateService.convertFloatAmount(job.getAmount(), sourceCurrency, targetCurrency);
+        
+        dto.setAmount(convertedAmount);
+        dto.setCurrency(targetCurrency);
+        
+        return dto;
+    }
+
+    //if currency already given without needing to get user from db
+    public JobResponseDTO convertJobCurrency(Job job, String targetCurrency) {
+        if (job == null) return null;
+        JobResponseDTO dto = jobMapper.maptoreturnJob(job);
+        
+        String actualTargetCurrency = (targetCurrency != null && !targetCurrency.isEmpty()) ? targetCurrency : "EGP";
+        String sourceCurrency = job.getCurrency() != null ? job.getCurrency() : "EGP";
+        float convertedAmount = exchangeRateService.convertFloatAmount(job.getAmount(), sourceCurrency, actualTargetCurrency);
+        
+        dto.setAmount(convertedAmount);
+        dto.setCurrency(actualTargetCurrency);
+        
+        return dto;
+    }
+
+    //queries without ID for unit testing later on, logic hasn't changed
     public Page<JobResponseDTO> getJobsPaged(int page) {
-        // like jparepository, pageable translates into sql syntax, page number is page
-        // number, size is number of records per page
-        // and how should it be sorted
+        return getJobsPaged(page, (Long) null);
+    }
+
+    public Page<JobResponseDTO> getJobsPaged(int page, Long currentUserId) {
         Pageable pageable = PageRequest.of(page, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        // get jobs that are not draft or closed
         List<JobStatus> excludedStatuses = Arrays.asList(JobStatus.DRAFT, JobStatus.CLOSED);
-
-        // add pageable as parameter so sql query adds limits and offset and sort and
-        // allows to return also extra header details like totalpages and total elements
-        // and whether this is first page or last page and etc.
         Page<Job> jobPage = jobRepository.findAllByStatusNotIn(excludedStatuses, pageable);
-
-        return jobPage.map(job -> jobMapper.maptoreturnJob(job));
+        return jobPage.map(job -> convertJobCurrency(job, currentUserId));
     }
 
     public Page<JobResponseDTO> getJobsWithAdvancedFilters(
@@ -103,6 +148,17 @@ public class JobService {
             List<Salary> salaryTypes,
             String location,
             String title) {
+        return getJobsWithAdvancedFilters(page, arrangements, jobTypes, salaryTypes, location, title, (Long) null);
+    }
+
+    public Page<JobResponseDTO> getJobsWithAdvancedFilters(
+            int page,
+            List<WorkArrangement> arrangements,
+            List<JobType> jobTypes,
+            List<Salary> salaryTypes,
+            String location,
+            String title,
+            Long currentUserId) {
 
         Pageable pageable = PageRequest.of(page, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<JobStatus> hiddenStatuses = Arrays.asList(JobStatus.DRAFT, JobStatus.CLOSED);
@@ -116,36 +172,41 @@ public class JobService {
 
         return jobRepository.findJobsWithAdvancedFilters(
                 hiddenStatuses, filterArr, filterTypes, filterSalaries, filterLoc, filterTitle, pageable)
-                .map(jobMapper::maptoreturnJob);
-
+                .map(job -> convertJobCurrency(job, currentUserId));
     }
 
     public Page<JobResponseDTO> getSearchedJobs(int page, String title) {
-        List<JobStatus> excludedStatuses = Arrays.asList(JobStatus.DRAFT, JobStatus.CLOSED);
+        return getSearchedJobs(page, title, (Long) null);
+    }
 
-        // Pageable pageable = PageRequest.of(page, 50, Sort.by(Sort.Direction.DESC,
-        // "createdAt"));
+    public Page<JobResponseDTO> getSearchedJobs(int page, String title, Long currentUserId) {
+        List<JobStatus> excludedStatuses = Arrays.asList(JobStatus.DRAFT, JobStatus.CLOSED);
         Pageable pageable = PageRequest.of(page, 50);
 
-        // 3. Logic: If title is null or just whitespace, return all active jobs
         if (title == null || title.trim().isEmpty()) {
-            // Page<Job> allActiveJobs =
-            // jobRepository.findAllByStatusNotIn(excludedStatuses, pageable);
-            // return allActiveJobs.map(jobMapper::maptoreturnJob);
-            return getJobsPaged(page);
+            return getJobsPaged(page, currentUserId);
         }
 
         Page<Job> jobPage = jobRepository.findByTitleContainingIgnoreCaseAndStatusNotIn(title, excludedStatuses,
                 pageable);
 
-        return jobPage.map(job -> jobMapper.maptoreturnJob(job));
-
+        return jobPage.map(job -> convertJobCurrency(job, currentUserId));
     }
-    //prevent optional.empty from being cached
+
+    // Cache the database retrieval of the raw Job entity instead of the DTO
     @Cacheable(value = "jobDetails", key = "#id", unless = "#result == null")
+    public Optional<Job> findJobEntityById(long id) {
+        return jobRepository.findById(id);
+    }
+
+    // Convert currency dynamically for each requesting user without caching the converted result
     public Optional<JobResponseDTO> findByID(long id) {
-        return jobRepository.findById(id)
-                .map(jobMapper::maptoreturnJob);
+        return findByID(id, (Long) null);
+    }
+
+    public Optional<JobResponseDTO> findByID(long id, Long currentUserId) {
+        return findJobEntityById(id)
+                .map(job -> convertJobCurrency(job, currentUserId));
     }
 
     @Transactional
@@ -169,7 +230,7 @@ public class JobService {
 
         userRepository.save(user);
 
-        return jobMapper.maptoreturnJob(jobRepository.save(job));
+        return convertJobCurrency(jobRepository.save(job), dto.getJobposterId());
 
     }
 
@@ -214,6 +275,11 @@ public class JobService {
         // update amount
         if (updatedJob.getAmount() > 0) {
             existingJob.setAmount(updatedJob.getAmount());
+        }
+
+        // update currency
+        if (dto.getCurrency() != null) {
+            existingJob.setCurrency(dto.getCurrency());
         }
 
         // update salary type
@@ -316,7 +382,7 @@ public class JobService {
 
         // cant edit userID, id of job
         Job savedjob = jobRepository.save(existingJob);
-        return jobMapper.maptoreturnJob(savedjob);
+        return convertJobCurrency(savedjob, savedjob.getJobPoster().getId());
 
     }
 

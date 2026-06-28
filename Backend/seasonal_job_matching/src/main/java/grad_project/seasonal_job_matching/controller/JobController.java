@@ -46,16 +46,17 @@ public class JobController {
     }
 
     @GetMapping
-    public Page<JobResponseDTO> findAll(@RequestParam(defaultValue = "0") int page) {
-        // return job_service.findAllJobs(); old method that gets all jobs
-        return job_service.getJobsPaged(page);
+    public Page<JobResponseDTO> findAll(@RequestParam(defaultValue = "0") int page, HttpServletRequest request) {
+        Long currentUserId = currentUserService.getCurrentUserId(request);
+        return job_service.getJobsPaged(page, currentUserId);
     }
 
     // MAYBE USE SLICE INSTEAD OF PAGE TO MAKE IT FASTER
     @GetMapping("/search")
     public Page<JobResponseDTO> findJobsFromSearch(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(required = false) String title) {
-        return job_service.getSearchedJobs(page, title);
+            @RequestParam(required = false) String title, HttpServletRequest request) {
+        Long currentUserId = currentUserService.getCurrentUserId(request);
+        return job_service.getSearchedJobs(page, title, currentUserId);
     }
 
     @GetMapping("/filter")
@@ -65,22 +66,24 @@ public class JobController {
             @RequestParam(required = false) List<JobType> jobTypes,
             @RequestParam(required = false) List<Salary> salaryTypes,
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) String title) {
+            @RequestParam(required = false) String title,
+            HttpServletRequest request) {
 
+        Long currentUserId = currentUserService.getCurrentUserId(request);
         Page<JobResponseDTO> jobs = job_service.getJobsWithAdvancedFilters(
-                page, arrangements, jobTypes, salaryTypes, location, title);
+                page, arrangements, jobTypes, salaryTypes, location, title, currentUserId);
         return ResponseEntity.ok(jobs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findByID(@PathVariable long id) {
-        Optional<JobResponseDTO> job = job_service.findByID(id);
+    public ResponseEntity<?> findByID(@PathVariable long id, HttpServletRequest request) {
+        Long currentUserId = currentUserService.getCurrentUserId(request);
+        Optional<JobResponseDTO> job = job_service.findByID(id, currentUserId);
         if (job.isEmpty()) {
             return ResponseEntity.ok("Job not found!");
         } else {
             return ResponseEntity.ok(job.get());
         }
-
     }
 
     @GetMapping("/employer/{id}")
@@ -89,16 +92,15 @@ public class JobController {
         if (currentUserId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Optional<JobResponseDTO> job = job_service.findByID(id);
+        Optional<JobResponseDTO> job = job_service.findByID(id, currentUserId);
+        if (job.isEmpty()) {
+            return ResponseEntity.ok("Job not found!");
+        }
+        
         if (currentUserId != job.get().getJobposterId())
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-        if (job.isEmpty()) {
-            return ResponseEntity.ok("Job not found!");
-        } else {
-            return ResponseEntity.ok(job.get());
-        }
-
+        return ResponseEntity.ok(job.get());
     }
 
     @GetMapping("/{jobId}/recommended-applicants")
@@ -108,7 +110,7 @@ public class JobController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<JobResponseDTO> job = job_service.findByID(jobId);
+        Optional<JobResponseDTO> job = job_service.findByID(jobId, currentUserId);
         if (job.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Job not found!"));
         }
@@ -147,7 +149,7 @@ public class JobController {
         Long currentUserId = currentUserService.getCurrentUserId(request);
         if (currentUserId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        Optional<JobResponseDTO> jobDetails = job_service.findByID(id);
+        Optional<JobResponseDTO> jobDetails = job_service.findByID(id, currentUserId);
         if (jobDetails.isEmpty())
             return ResponseEntity.notFound().build();
         if (currentUserId != jobDetails.get().getJobposterId())
@@ -169,7 +171,7 @@ public class JobController {
         Long currentUserId = currentUserService.getCurrentUserId(request);
         if (currentUserId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        Optional<JobResponseDTO> jobDetails = job_service.findByID(id);
+        Optional<JobResponseDTO> jobDetails = job_service.findByID(id, currentUserId);
         if (jobDetails.isEmpty())
             return ResponseEntity.notFound().build();
         if (currentUserId != jobDetails.get().getJobposterId())

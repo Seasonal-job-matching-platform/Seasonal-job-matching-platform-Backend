@@ -92,6 +92,18 @@ public class ExchangeRateService {
     }
 
     /**
+     * Converts a float amount from sourceCurrency to targetCurrency.
+     */
+    public float convertFloatAmount(float amount, String sourceCurrency, String targetCurrency) {
+        if (sourceCurrency.equalsIgnoreCase(targetCurrency)) {
+            return amount;
+        }
+        long amountInSmallest = Math.round(amount * 100.0);
+        long convertedInSmallest = convertAmount(amountInSmallest, sourceCurrency, targetCurrency);
+        return (float) (convertedInSmallest / 100.0);
+    }
+
+    /**
      * Scheduled to run daily at midnight UTC.
      * Evicts the old cache entry and forces a fresh fetch on the next call.
      */

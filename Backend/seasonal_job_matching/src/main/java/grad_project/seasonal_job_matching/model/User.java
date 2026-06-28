@@ -91,6 +91,9 @@ public class User {
     @Column
     private Integer jobPostingCredits;
 
+    @Column(nullable = false)
+    private String currency = "EGP";
+
     // Default constructor required for JPA
     public User(String name, String country, String number, String email, String password) {
 

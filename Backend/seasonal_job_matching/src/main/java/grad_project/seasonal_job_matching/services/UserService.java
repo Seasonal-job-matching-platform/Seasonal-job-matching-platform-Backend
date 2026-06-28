@@ -58,6 +58,8 @@ public class UserService {
     private UserMapper userMapper;
     @Autowired
     private JobMapper jobMapper;
+    @Autowired
+    private JobService jobService;
 
     private final JWTService jwtService;
 
@@ -106,7 +108,7 @@ public class UserService {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 logger.info("Successfully received recommendations for user {}", userId);
                 // Map the response to your JobResponseDTO format
-                return mapToJobResponseDTOs(response.getBody());
+                return mapToJobResponseDTOs(response.getBody(), userId);
             } else {
                 logger.warn("Received empty or unsuccessful response from external API");
                 return new ArrayList<>();
@@ -140,7 +142,7 @@ public class UserService {
     // takes given data from recommendations and returns the full jobs, can tell
     // Ahmed to just give me the full job so I can return it without having to parse
     // ID from recommendation and fetch same jobs again.
-    private List<JobResponseDTO> mapToJobResponseDTOs(RecommendedJobsResponse response) {
+    private List<JobResponseDTO> mapToJobResponseDTOs(RecommendedJobsResponse response, Long userId) {
         if (response == null || response.getRecommendations() == null || response.getRecommendations().isEmpty()) {
             logger.warn("No recommendations found in response");
             return new ArrayList<>();
@@ -167,9 +169,11 @@ public class UserService {
             return new ArrayList<>();
         }
 
-        // Map Jobs to JobResponseDTOs using existing mapper
+        // Map Jobs to JobResponseDTOs using dynamic currency conversion
+        User user = userId != null ? userRepository.findById(userId).orElse(null) : null;
+        String userCurrency = (user != null && user.getCurrency() != null) ? user.getCurrency() : "EGP";
         List<JobResponseDTO> jobDTOs = jobs.stream()
-                .map(jobMapper::maptoreturnJob)
+                .map(job -> jobService.convertJobCurrency(job, userCurrency))
                 .collect(Collectors.toList());
 
         logger.info("Successfully mapped {} jobs to DTOs", jobDTOs.size());
@@ -180,7 +184,10 @@ public class UserService {
     public List<JobResponseDTO> findUserJobs(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-        return user.getOwnedJobs().stream().map(jobMapper::maptoreturnJob).collect(Collectors.toList());
+        String userCurrency = user.getCurrency() != null ? user.getCurrency() : "EGP";
+        return user.getOwnedJobs().stream()
+                .map(job -> jobService.convertJobCurrency(job, userCurrency))
+                .collect(Collectors.toList());
     }
 
     public Map<String, Object> loginUser(UserLoginDTO dto) {
@@ -319,6 +326,10 @@ public class UserService {
 
         if (dto.getCountry() != null && !dto.getCountry().trim().isEmpty()) {
             existingUser.setCountry(updatedUser.getCountry());
+        }
+
+        if (dto.getCurrency() != null && !dto.getCurrency().trim().isEmpty()) {
+            existingUser.setCurrency(dto.getCurrency());
         }
 
         if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) {

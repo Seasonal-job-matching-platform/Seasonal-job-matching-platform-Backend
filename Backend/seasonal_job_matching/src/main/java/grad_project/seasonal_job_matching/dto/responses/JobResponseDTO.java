@@ -28,6 +28,7 @@ public class JobResponseDTO {
     private Date startDate;   
     @PositiveOrZero
     private float amount;
+    private String currency;
     private Salary salary;
     private Integer duration;
     private JobStatus status;
