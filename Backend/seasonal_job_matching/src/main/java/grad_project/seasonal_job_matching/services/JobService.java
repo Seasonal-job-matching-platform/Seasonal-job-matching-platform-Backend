@@ -106,10 +106,16 @@ public class JobService {
         }
         
         String sourceCurrency = job.getCurrency() != null ? job.getCurrency() : "EGP";
-        float convertedAmount = exchangeRateService.convertFloatAmount(job.getAmount(), sourceCurrency, targetCurrency);
-        
-        dto.setAmount(convertedAmount);
-        dto.setCurrency(targetCurrency);
+        try {
+            float convertedAmount = exchangeRateService.convertFloatAmount(job.getAmount(), sourceCurrency, targetCurrency);
+            dto.setAmount(convertedAmount);
+            dto.setCurrency(targetCurrency);
+        } catch (Exception e) {
+            logger.error("Currency conversion failed for job {}: {}. Falling back to original currency ({}) and amount ({}).", 
+                job.getId(), e.getMessage(), sourceCurrency, job.getAmount());
+            dto.setAmount(job.getAmount());
+            dto.setCurrency(sourceCurrency);
+        }
         
         return dto;
     }
@@ -121,10 +127,16 @@ public class JobService {
         
         String actualTargetCurrency = (targetCurrency != null && !targetCurrency.isEmpty()) ? targetCurrency : "EGP";
         String sourceCurrency = job.getCurrency() != null ? job.getCurrency() : "EGP";
-        float convertedAmount = exchangeRateService.convertFloatAmount(job.getAmount(), sourceCurrency, actualTargetCurrency);
-        
-        dto.setAmount(convertedAmount);
-        dto.setCurrency(actualTargetCurrency);
+        try {
+            float convertedAmount = exchangeRateService.convertFloatAmount(job.getAmount(), sourceCurrency, actualTargetCurrency);
+            dto.setAmount(convertedAmount);
+            dto.setCurrency(actualTargetCurrency);
+        } catch (Exception e) {
+            logger.error("Currency conversion failed for job {}: {}. Falling back to original currency ({}) and amount ({}).", 
+                job.getId(), e.getMessage(), sourceCurrency, job.getAmount());
+            dto.setAmount(job.getAmount());
+            dto.setCurrency(sourceCurrency);
+        }
         
         return dto;
     }

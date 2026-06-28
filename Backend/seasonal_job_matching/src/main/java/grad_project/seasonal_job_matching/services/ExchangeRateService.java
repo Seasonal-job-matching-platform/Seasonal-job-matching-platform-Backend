@@ -34,6 +34,10 @@ public class ExchangeRateService {
 
     private final RestTemplate restTemplate;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private ExchangeRateService self;
+
     public ExchangeRateService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -65,7 +69,7 @@ public class ExchangeRateService {
             return amountInSmallestUnit;
         }
 
-        Map<String, Double> rates = getExchangeRates();
+        Map<String, Double> rates = self.getExchangeRates();
 
         String sourceUpper = sourceCurrency.toUpperCase();
         String targetUpper = targetCurrency.toUpperCase();
@@ -115,7 +119,7 @@ public class ExchangeRateService {
         // and fetch fresh rates from the API
         try {
             // Immediately re-populate the cache so the first user doesn't wait
-            getExchangeRates();
+            self.getExchangeRates();
             logger.info("Scheduled task: Successfully re-populated exchange rates cache.");
         } catch (Exception e) {
             logger.error("Scheduled task: Failed to refresh exchange rates. " +
