@@ -17,7 +17,6 @@ import grad_project.seasonal_job_matching.services.Notifications.NotificationFac
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +54,6 @@ public class ApplicationService {
      * Creates a new application.
      * This method links the application to both the User and the Job.
      */
-    @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     @Transactional
     public ApplicationResponseDTO createApplication(ApplicationCreateDTO dto, long userId, long jobId) {
 
@@ -153,7 +151,8 @@ public class ApplicationService {
     /**
      * Gets all applications that have been submitted for a specific job (paginated).
      */
-    @Cacheable(value = "applicationsForEmployer", key = "#jobId + '_' + #page")
+    // Page<> objects cannot be cached in Redis — PageImpl has no default constructor
+    // for Jackson deserialization. Query goes to DB on every call.
     @Transactional(readOnly = true)
     public Page<ApplicationWebResponseDTO> getApplicationsForJob(long jobId, int page) {
         if (!jobRepository.existsById(jobId)) {
@@ -172,7 +171,6 @@ public class ApplicationService {
      * This will automatically remove it from the User's and Job's lists
      * on the next database read because the record is gone.
      */
-    @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     @Transactional
     public void deleteApplication(long applicationId, long userId, long jobId) {
         if (!applicationRepository.existsById(applicationId)) {
@@ -185,7 +183,6 @@ public class ApplicationService {
         applicationRepository.deleteById(applicationId);
     }
 
-    @CacheEvict(value = "applicationsForEmployer", allEntries = true)
     @Transactional
     public ApplicationResponseDTO updateApplicationStatus(long applicationId, long requestingUserId,
             ApplicationStatusUpdateDTO dto) {
