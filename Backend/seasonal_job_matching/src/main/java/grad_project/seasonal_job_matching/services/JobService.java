@@ -142,7 +142,7 @@ public class JobService {
 
     }
     //prevent optional.empty from being cached
-    @Cacheable(value = "jobDetails", key = "#id", unless = "#result == null || !#result.isPresent()")
+    @Cacheable(value = "jobDetails", key = "#id", unless = "#result == null")
     public Optional<JobResponseDTO> findByID(long id) {
         return jobRepository.findById(id)
                 .map(jobMapper::maptoreturnJob);
