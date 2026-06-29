@@ -231,6 +231,7 @@ public class JobService {
     }
 
     @Transactional
+    @CacheEvict(value = "profile", key = "#dto.jobposterId")
     public JobResponseDTO createJob(JobCreateDTO dto) { // does it need any validation like unique user email?
         Job job = jobMapper.maptoAddJob(dto);
         User user = userRepository.findById(dto.getJobposterId())
