@@ -37,6 +37,9 @@ import grad_project.seasonal_job_matching.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -54,6 +57,12 @@ public class JobService {
 
     @Value("${external.api.applicant-recommender.url:https://application-recommender-etcnc3gsducqc4hz.switzerlandnorth-01.azurewebsites.net}")
     private String applicantRecommenderUrl;
+
+    @Value("${matching.engine.url}")
+    private String matchingEngineUrl;
+
+    @Value("${matching.engine.embed-secret}")
+    private String embedSecret;
 
     public final List<Job> users = new ArrayList<>();
     private final JobRepository jobRepository;
@@ -242,7 +251,9 @@ public class JobService {
 
         userRepository.save(user);
 
-        return convertJobCurrency(jobRepository.save(job), dto.getJobposterId());
+        Job savedJob = jobRepository.save(job);
+        triggerEmbed(savedJob.getId());
+        return convertJobCurrency(savedJob, dto.getJobposterId());
 
     }
 
@@ -394,6 +405,7 @@ public class JobService {
 
         // cant edit userID, id of job
         Job savedjob = jobRepository.save(existingJob);
+        triggerEmbed(savedjob.getId());
         return convertJobCurrency(savedjob, savedjob.getJobPoster().getId());
 
     }
@@ -535,5 +547,20 @@ public class JobService {
             logger.error("Error occurred while getting recommended applicants: {}", e.getMessage(), e);
             return new ArrayList<>();
         }
+    }
+
+    private void triggerEmbed(long jobId) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String url = matchingEngineUrl + "/jobs/" + jobId + "/embed";
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("x-embed-secret", embedSecret);
+                HttpEntity<Void> entity = new HttpEntity<>(headers);
+                restTemplate.postForEntity(url, entity, Void.class);
+                logger.info("Triggered embed for job {}", jobId);
+            } catch (Exception e) {
+                logger.warn("Failed to trigger embed for job {}: {}", jobId, e.getMessage());
+            }
+        });
     }
 }
