@@ -7,3 +7,8 @@ spring:
     sql:
         init:
             mode: always
+
+matching:
+  engine:
+    url: ${MATCHING_ENGINE_URL}
+    embed-secret: ${MATCHING_ENGINE_EMBED_SECRET}
