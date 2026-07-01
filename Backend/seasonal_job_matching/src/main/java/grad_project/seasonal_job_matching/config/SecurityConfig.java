@@ -62,7 +62,7 @@ public class SecurityConfig {
                                     "Unauthorized: Invalid or missing token");
                         }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users", "/api/app-version").permitAll() // login or signup done without
+                        .requestMatchers("/api/users/login", "/api/users", "/api/app-version", "/api/feedback").permitAll() // login or signup done without
                                                                                        // authentication
                         .requestMatchers("/api/webhooks/**").permitAll()
                         .requestMatchers("/api/**").authenticated() // any other call requires authentication
