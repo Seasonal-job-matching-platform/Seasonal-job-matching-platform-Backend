@@ -31,14 +31,15 @@ public class NotificationFacade {
     public void dispatchApplicationUpdate(User applicant, String employerName, Long applicationId,
             ApplicationStatusUpdateDTO dto) {
         String title = "Application Update";
-        String message = buildNotificationMessage(employerName, applicant.getName(), applicationId, dto);
+        String htmlMessage = buildNotificationMessage(employerName, applicant.getName(), applicationId, dto);
+        String plainMessage = buildPlainNotificationMessage(employerName, applicant.getName(), applicationId, dto);
 
         // 1. Save the historical record to the DB (for the in-app notification bell)
-        notificationService.saveNotification(applicant, title, message);
+        notificationService.saveNotification(applicant, title, plainMessage);
 
         if (Boolean.TRUE.equals(applicant.getWantsEmails())) {
             // 2. Fire off the Email (Runs on a background thread)
-            emailService.sendEmailAlert(applicant.getEmail(), title, message);
+            emailService.sendEmailAlert(applicant.getEmail(), title, htmlMessage);
         }
 
         // 3. Fetch all active device tokens for this user
@@ -47,11 +48,11 @@ public class NotificationFacade {
         // 4. Loop through every device (laptop, phone, tablet) and push the
         // notification
         for (UserDeviceToken device : userDevices) {
-            fcmService.sendPushNotification(device.getToken(), title, message);
+            fcmService.sendPushNotification(device.getToken(), title, plainMessage);
         }
     }
 
-    // Helper method to create HTML formatted messages
+    // Helper method to create HTML formatted messages for email
     private String buildNotificationMessage(String employerName, String applicantName, Long applicationId,
             ApplicationStatusUpdateDTO dto) {
 
@@ -98,6 +99,49 @@ public class NotificationFacade {
             default:
                 return String.format(
                         "<p>Hello <strong>%s</strong>,</p><p>The status of your application (#%d) with <strong>%s</strong> is now <strong>%s</strong>.</p>",
+                        applicantName, applicationId, employerName, dto.getStatus().name());
+        }
+    }
+
+    // Helper method to create plain text formatted messages for mobile UI and push notifications
+    private String buildPlainNotificationMessage(String employerName, String applicantName, Long applicationId,
+            ApplicationStatusUpdateDTO dto) {
+
+        switch (dto.getStatus().toString()) {
+            case "ACCEPTED":
+                return String.format(
+                        "Hello %s, Congratulations! Your application (#%d) has been ACCEPTED by %s.",
+                        applicantName, applicationId, employerName);
+
+            case "REJECTED":
+                return String.format(
+                        "Hello %s, Unfortunately, your application (#%d) has been DECLINED by %s.",
+                        applicantName, applicationId, employerName);
+
+            case "INTERVIEW_SCHEDULED":
+                StringBuilder sb = new StringBuilder();
+                sb.append(String.format(
+                        "Hello %s, %s has scheduled an INTERVIEW for your application (#%d).",
+                        applicantName, employerName, applicationId));
+
+                if (dto.getInterviewDate() != null || dto.getInterviewTime() != null || (dto.getInterviewLocation() != null && !dto.getInterviewLocation().isEmpty())) {
+                    sb.append(" Details -");
+                }
+                if (dto.getInterviewDate() != null) {
+                    sb.append(" Date: ").append(dto.getInterviewDate());
+                }
+                if (dto.getInterviewTime() != null) {
+                    sb.append(" Time: ").append(dto.getInterviewTime());
+                }
+                if (dto.getInterviewLocation() != null && !dto.getInterviewLocation().isEmpty()) {
+                    sb.append(" Location: ").append(dto.getInterviewLocation());
+                }
+                return sb.toString();
+
+            case "PENDING":
+            default:
+                return String.format(
+                        "Hello %s, The status of your application (#%d) with %s is now %s.",
                         applicantName, applicationId, employerName, dto.getStatus().name());
         }
     }
